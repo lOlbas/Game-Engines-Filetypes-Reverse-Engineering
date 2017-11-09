@@ -9,6 +9,7 @@ A work-in-progress repository containing templating and reading scripts along wi
 * [Engines](#engines)
 * [Filetypes](#filetypes)
 * [Templates code-style](#templates-code-style)
+* [Directory structure](#directory-structure)
 
 ##
 
@@ -101,7 +102,7 @@ Status legend:
 
 ### Templates code-style
 
-Extension templates are written using [010 Editor](https://www.sweetscape.com/010editor/). While using it, a good way is to visualize parsed parts of a file even if particular byte sequence meaning is unknown  to you. You should also stick to this styling even if you can parse every byte of a certain extension since there can be one file with extra information which is not handled by your template.
+Extension templates are mainly written using [010 Editor](https://www.sweetscape.com/010editor/) (any other templating application is OK as long as it allows making file-parsing scripts). While using it, a good way is to visualize parsed parts of a file even if particular byte sequence meaning is unknown  to you. You should also stick to this styling even if you can parse every byte of a certain extension since there can be one file with extra information which is not handled by your template.
 
 Color scheme used by me (and proposed for usage by any contributor) is similar to status legend at [Filetypes](#filetypes) section:
 
@@ -112,3 +113,39 @@ Color scheme used by me (and proposed for usage by any contributor) is similar t
 - ![](https://placehold.it/15/FF0000/?text=+) `0x0000FF` - unknown meaning of byte sequence.
 
 Keep in mind, that [010 Editor](https://www.sweetscape.com/010editor/) colors are written like BGR, not RGB.
+
+##
+
+### Directory structure
+
+A well-structured storage is easy to search to maintain! That's why a certain logic should be used. In our case, we can have multiple game engines use same extension but those files be of different types.
+
+A top-level directory `engines` is used to contain game engines folders. Navigating to certain engine will show a list of folders with extensions supplied as folder names. In case a filetype can be of multiple versions, every version (prefixed with `v`) is contained as a separate folder. Inside extension folder (or its version) there must be `samples`, `scripts` and `templates` folders.
+
+
+Example structure:
+
+```
+engines/
+├── Gameloft/
+│   ├── bdae/
+│   │   ├── v0.0.0.779/
+│   │   │   ├── samples
+│   │   │   │   └── elf_low_h.bdae
+│   │   │   ├── scripts
+│   │   │   │   └── bdae_import.cs
+│   │   │   └── templates
+│   │   │   │   └── BDAE.bt
+│   │   └── v0.0.0.946/
+│   │       ├── samples
+│   │       ├── scripts
+│   │       └── templates
+│   │           └── BDAE.bt
+│   └── trn/
+│       ├── samples
+│       ├── scripts
+│       └── templates
+│           └── TRN.bt
+├── Frostbite/
+└── General/
+```
