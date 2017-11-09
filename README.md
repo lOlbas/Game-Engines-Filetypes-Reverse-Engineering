@@ -45,7 +45,7 @@ Status legend:
   </tr>
   <tr>
   <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <span class="">.bdae</span></td>
-    <td>3D model including mesh, materials, textures, nodes, bones, SFX, animations.</td>
+  <td>3D model including mesh, materials, textures, nodes, bones, SFX, animations.<br><i>Different games or game versions can use different file version.</i></td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .beff</td>
@@ -65,7 +65,7 @@ Status legend:
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FFBB00/?text=+" /> .itm</td>
-    <td>Contains data about different .bdae models placed on a terrain chunk. Implicitly bound with .trn by file name.</td>
+    <td>Contains data about different .bdae models placed on a terrain chunk. Implicitly bound with .trn by game world position.</td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .msk</td>
@@ -101,4 +101,9 @@ Status legend:
 
 ### Templates code-style
 
-TODO
+Extension templates are written using [010 Editor](https://www.sweetscape.com/010editor/). While using it, a good way is to visualize parsed parts of a file even if particular byte sequence meaning is unknown  to you. Color scheme used by me (and proposed for usage by any contributor) is similar to status legend at [Filetypes](#filetypes) section:
+
+- known meaning of byte sequence
+- byte sequence usage is known but meaning is not (for example, 4-byte value can be an offset to unknown region)
+- byte sequence contains a constant value across multiple file examples
+- unknown meaning of byte sequence
