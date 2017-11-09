@@ -101,9 +101,14 @@ Status legend:
 
 ### Templates code-style
 
-Extension templates are written using [010 Editor](https://www.sweetscape.com/010editor/). While using it, a good way is to visualize parsed parts of a file even if particular byte sequence meaning is unknown  to you. Color scheme used by me (and proposed for usage by any contributor) is similar to status legend at [Filetypes](#filetypes) section:
+Extension templates are written using [010 Editor](https://www.sweetscape.com/010editor/). While using it, a good way is to visualize parsed parts of a file even if particular byte sequence meaning is unknown  to you. You should also stick to this styling even if you can parse every byte of a certain extension since there can be one file with extra information which is not handled by your template.
 
-- known meaning of byte sequence
-- byte sequence usage is known but meaning is not (for example, 4-byte value can be an offset to unknown region)
-- byte sequence contains a constant value across multiple file examples
-- unknown meaning of byte sequence
+Color scheme used by me (and proposed for usage by any contributor) is similar to status legend at [Filetypes](#filetypes) section:
+
+- ![](https://placehold.it/15/00FF00/?text=+) `0x00FF00` - known meaning of byte sequence;
+- ![](https://placehold.it/15/FFFF00/?text=+) `0x00FFFF` - byte sequence usage is known but meaning is not (for example, 4-byte value can be an offset to unknown region);
+- ![](https://placehold.it/15/00BBFF/?text=+) `0xFFBB00 `- byte sequence contains a constant *zero* value across multiple file examples and has unknown meaning;
+- ![](https://placehold.it/15/FF8800/?text=+) `0x0088FF` - byte sequence contains a constant *non-zero* value across multiple file examples and has unknown meaning;
+- ![](https://placehold.it/15/FF0000/?text=+) `0x0000FF` - unknown meaning of byte sequence.
+
+Keep in mind, that [010 Editor](https://www.sweetscape.com/010editor/) colors are written like BGR, not RGB.
