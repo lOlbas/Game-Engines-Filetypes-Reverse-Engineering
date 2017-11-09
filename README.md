@@ -16,7 +16,7 @@ A work-in-progress repository containing templating and reading scripts along wi
 
 List of engines (or companies if engine name is unknown) which files are to be explored.
 
-* [Gameloft](#gameloft)
+* [Gameloft](#gameloft-engine)
 * ...
 
 ##
@@ -32,7 +32,11 @@ Status legend:
 * ![#FFFF00](https://placehold.it/15/FFFF00/?text=+) Parsing in-progress
 * ![#FF0000](https://placehold.it/15/FF0000/?text=+) Filetype is planned for future
 
-#### Gameloft
+#### Gameloft Engine
+
+<style>
+.known { color: #FFBB00; }
+</style>
 
 <table>
   <tr>
@@ -44,7 +48,7 @@ Status legend:
     <td></td>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/FFFF00/?text=+" /> .bdae</td>
+  <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <span class="">.bdae</span></td>
     <td>3D model including mesh, materials, textures, nodes, bones, SFX, animations.</td>
   </tr>
   <tr>
@@ -65,7 +69,7 @@ Status legend:
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FFBB00/?text=+" /> .itm</td>
-    <td>Contains data about different .bdae models placed on <a href="#trn">terrain</a> chunk. Implicitly bound with .trn.</td>
+    <td>Contains data about different .bdae models placed on a terrain chunk. Implicitly bound with .trn by file name.</td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .msk</td>
@@ -85,7 +89,7 @@ Status legend:
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FFFF00/?text=+" /> .trn</td>
-    <td></td>
+    <td>Represents a terrain chunk of 64x64 size. Known info: heightmaps.</td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .wld</td>
@@ -93,7 +97,7 @@ Status legend:
   </tr>
   <tr>
     <td>...</td>
-    <td></td>
+    <td>...</td>
   </tr>
 </table>
 
