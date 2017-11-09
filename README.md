@@ -6,9 +6,9 @@ A work-in-progress repository containing templating and reading scripts along wi
 
 ### Contents:
 
-* [Engines](#Engines)
-* [Filetypes](#Filetypes)
-* [Templates code-style](#CodeStyle)
+* [Engines](#engines)
+* [Filetypes](#filetypes)
+* [Templates code-style](#templates-code-style)
 
 ##
 
@@ -16,7 +16,7 @@ A work-in-progress repository containing templating and reading scripts along wi
 
 List of engines (or companies if engine name is unknown) which files are to be explored.
 
-* [Gameloft](#Gameloft)
+* [Gameloft](#gameloft)
 * ...
 
 ##
@@ -99,6 +99,6 @@ Status legend:
 
 ##
 
-### Template code styles
+### Templates code-style
 
 TODO
