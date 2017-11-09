@@ -45,8 +45,8 @@ Status legend:
     <td></td>
   </tr>
   <tr>
-  <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <span class="">.bdae</span></td>
-  <td>3D model including mesh, materials, textures, nodes, bones, SFX, animations.<br><i>Different games or game versions can use different file version.</i></td>
+  <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <span class=""> <a href="engines/Gameloft/bdae/">.bdae</a></span></td>
+  <td>3D model including mesh, materials, textures, nodes, bones, SFX, animations.<br></td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .beff</td>
@@ -65,11 +65,15 @@ Status legend:
     <td></td>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/FFBB00/?text=+" /> .itm</td>
+  <td><img src="https://placehold.it/15/FFBB00/?text=+" /> <a href="engines/Gameloft/itm/">.itm</a></td>
     <td>Contains data about different .bdae models placed on a terrain chunk. Implicitly bound with .trn by game world position.</td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .msk</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><img src="https://placehold.it/15/FF0000/?text=+" /> .nav</td>
     <td></td>
   </tr>
   <tr>
@@ -85,7 +89,11 @@ Status legend:
     <td></td>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/FFFF00/?text=+" /> .trn</td>
+    <td><img src="https://placehold.it/15/FF0000/?text=+" /> .sfx</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <a href="engines/Gameloft/trn/">.trn</a></td>
     <td>Represents a terrain chunk of 64x64 size. Known info: heightmaps.</td>
   </tr>
   <tr>
@@ -128,24 +136,19 @@ Example structure:
 ```
 engines/
 ├── Gameloft/
-│   ├── bdae/
-│   │   ├── v0.0.0.779/
-│   │   │   ├── samples
-│   │   │   │   └── elf_low_h.bdae
-│   │   │   ├── scripts
-│   │   │   │   └── bdae_import.cs
-│   │   │   └── templates
-│   │   │   │   └── BDAE.bt
-│   │   └── v0.0.0.946/
-│   │       ├── samples
-│   │       ├── scripts
-│   │       └── templates
-│   │           └── BDAE.bt
-│   └── trn/
-│       ├── samples
-│       ├── scripts
-│       └── templates
-│           └── TRN.bt
+│   └── bdae/
+│       ├── v0.0.0.779/
+│       │   ├── samples
+│       │   │   └── elf_low_h.bdae
+│       │   ├── scripts
+│       │   │   └── bdae_import.cs
+│       │   └── templates
+│       │   │   └── BDAE.bt
+│       └── v0.0.0.946/
+│           ├── samples
+│           ├── scripts
+│           └── templates
+│               └── BDAE.bt
 ├── Frostbite/
 └── General/
 ```
