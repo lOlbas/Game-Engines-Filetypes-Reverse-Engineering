@@ -1,0 +1,507 @@
+//------------------------------------------------
+//--- 010 Editor v7.0.2 Binary Template
+//
+//      File: BDAE.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: BDAE Format v0.0.0.779.
+//  Category: Model.
+// File Mask: *.bdae
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef enum <WORD>
+{
+    UNKNOWN     = 0x0000FF,
+    KNOWN       = 0x00FF00,
+    UNNAMED     = 0x00FFFF,
+    RESERVED    = 0xFFBB00,
+    TODO        = 0xFFFF00,
+    CONST       = 0x0088FF
+} LEVELS;
+
+//-------------------Functions--------------------
+
+uint StringLength(uint size) {
+    return (size == 0) ? 0 : ((int)(size / 4) + 1) * 4;
+}
+
+string StringAtOffset(uint offset)
+{
+    uint fpos = FTell();
+    FSeek(offset);
+    
+    string s = ReadString(offset);
+    
+    FSeek(fpos);
+    
+    return s;
+}
+
+//------------------Data Structs------------------
+
+struct HEADER_STRING
+{
+    uint            string_size             <            bgcolor=0x00FF00>;
+    if (string_size > 0)
+        char    string_value[StringLength(string_size)] <bgcolor=0xFFBB00>;
+};
+
+struct XY
+{
+    float           X                       <            bgcolor=0x00FF00, name="X">;
+    float           Y                       <            bgcolor=0x00FF00, name="Y">;
+};
+
+struct XYZ
+{
+    float           X                       <            bgcolor=0x00FF00, name="X">;
+    float           Y                       <            bgcolor=0x00FF00, name="Y">;
+    float           Z                       <            bgcolor=0x00FF00, name="Z">;
+};
+
+struct XYZW
+{
+    float           X                       <            bgcolor=0x00FF00, name="X">;
+    float           Y                       <            bgcolor=0x00FF00, name="Y">;
+    float           Z                       <            bgcolor=0x00FF00, name="Z">;
+    float           W                       <            bgcolor=0x00FF00, name="W">;
+};
+
+struct BOUNDING_BOX
+{
+    XYZ corner_1;
+    XYZ corner_2;
+};
+
+struct FVF32
+{
+    XYZ             coordinates             <                              name="Coordinates">;
+    XYZ             normals                 <                              name="Normals">;
+    XY              uvs                     <                              name="UVs">;
+};
+
+struct FVF44
+{
+//  UVs may not be real UVs since they keep getting negative values
+    XYZ             coordinates             <                              name="Coordinates">;
+    XYZ             normals                 <                              name="Normals">;
+    XY              uvs                     <                              name="UVs">;
+    float           unknown[2]              <            bgcolor=0x0000FF>;
+    int             unknown_i               <            bgcolor=0x0000FF>;
+};
+
+struct FVF56
+{
+    XYZ             coordinates             <                              name="Coordinates">;
+    XYZ             normals                 <                              name="Normals">;
+    XY              uvs                     <                              name="UVs">;
+    float           unknown[6]              <            bgcolor=0x0000FF>;
+};
+
+struct FVF60
+{
+    XYZ             coordinates             <                              name="Coordinates">;
+    XYZ             normals                 <                              name="Normals">;
+    XY              uvs                     <                              name="UVs">;
+    float           unknown[7]              <            bgcolor=0x0000FF>;
+};
+
+//----------------------Main----------------------
+
+LittleEndian();
+
+struct ModelInfo
+{
+    // Either faces or vertices
+    uint64          model_data_length       <            bgcolor=0xFFFF00>;
+    uint64          model_data_offset       <format=hex, bgcolor=0xFFFF00>;
+};
+
+struct BDAEHeader
+{
+    uchar           signature[4]            <            bgcolor=0x00FF00, name="Signature">;
+    short           bom                     <            bgcolor=0x00FF00, name="Byte Order Mark">;
+    short           bom_padding             <            bgcolor=0x00FF00, name="Byte Order Mark Padding">;
+    uint            header_size             <format=hex, bgcolor=0x00FF00, name="Header Size">;
+    uint            bdae_size               <format=hex, bgcolor=0x00FF00, name="File Size">;
+    uint64          data_pointers_count     <            bgcolor=0x00FF00, name="Data Pointers Count">;
+    uint64          data_pointers_offset    <format=hex, bgcolor=0x00FF00, name="Data Pointers Offset">;
+    uint64          strings_offset          <format=hex, bgcolor=0x00FF00, name="Strings Offset">;
+    uint64          model_info_offset       <format=hex, bgcolor=0x00FFFF, name="Model Info Offset">;
+    uint64          offset_2                <format=hex, bgcolor=0x00FFFF, name="After Previous Section Offset">;
+    uint64          meshes_info_offset      <format=hex, bgcolor=0x00FF00, name="Meshes Info Offset">;
+    uint            model_data_length       <            bgcolor=0x00FF00, name="Model Data Length">;
+    uint            model_meshes_count      <            bgcolor=0x00FF00, name="Model Meshes Count">;
+    uint            reserved_1              <            bgcolor=0xFFBB00, name="Reserved Zero 1">;
+    uint            reserved_2              <            bgcolor=0xFFBB00, name="Reserved Zero 2">;
+} ;
+
+struct BDAEPointers
+{
+    local int i;
+    for (i = 0; i < header.data_pointers_count; i++)
+        uint64      data_pointer            <format=hex, bgcolor=0x0000FF, name="Data Pointer ">;
+};
+
+struct BDAEStrings
+{
+    local uint fpos = FTell();
+    local int i = 0;
+    while (fpos + 1 <= header.model_info_offset) {
+        FSeek(fpos);
+        HEADER_STRING   strings             <                              name="Header String">;
+        fpos = fpos + sizeof(strings[i].string_size) + StringLength(strings[i].string_size);
+        i++;
+    }
+};
+
+struct BDAEMeshesOffsets
+{
+    local uint i;
+    FSeek(header.meshes_info_offset);
+    for (i = 0; i < header.model_meshes_count; i++) {
+        ModelInfo model_info;
+    }
+};
+
+struct BDAEVersionInfo
+{
+    uint                version_offset      <format=hex, bgcolor=0x00FF00, name="Version String Offset", comment=StringAtOffset>;
+    int                 reserved[5]         <            bgcolor=0xFFBB00, name="Reserved">;
+};
+
+struct BDAEUnknownInfo8b
+{
+    uint                unknown_count       <            bgcolor=0x0000FF, name="Unknown Count">;
+    uint                unknown_offset      <            bgcolor=0x0000FF, name="Unknown Offset">;
+};
+
+struct BDAEUnknownInfo72b
+{
+    uint                reserved[6]         <            bgcolor=0x00FFFF, name="Reserved", comment="Seem to be a section mark.">;
+    uint                unknown[12]         <            bgcolor=0x0000FF>;
+};
+
+//--------------------Textures--------------------
+
+struct BDAETexture
+{
+    uint64              map_name            <            bgcolor=0x00FF00, comment=StringAtOffset, name="Tetxure Map">;
+    uint64              map_name_friendly   <            bgcolor=0x00FF00, comment=StringAtOffset, name="Tetxure Map Friendly">;
+    uint64              texture_file        <            bgcolor=0x00FF00, comment=StringAtOffset, name="Texture Path">;
+    uint64              zero_padding[2]     <            bgcolor=0xFFBB00,                         name="Reserved">;
+};
+
+struct BDAETextures
+{
+    local int i;
+    for (i = 0; i < model_infos.textures_info.textures_count; i++) {
+        BDAETexture     texture             <                              name="Texture">;
+    }
+};
+
+struct BDAETexturesInfo
+{
+    uint                textures_count      <            bgcolor=0x00FF00, name="Texture Count">;
+    uint                textures_offset     <format=hex, bgcolor=0x00FF00, name="Texture Info Offset">;
+    local uint real_textures_offset = FTell() - sizeof(uint) + textures_offset;
+};
+
+//--------------------Materials-------------------
+
+struct BDAEMaterial
+{
+    uint64              material_name_1     <            bgcolor=0x00FF00, comment=StringAtOffset, name="Material Name 1">;
+    uint64              material_name_2     <            bgcolor=0x00FF00, comment=StringAtOffset, name="Material Name 2">;
+    uint64              material_file       <            bgcolor=0x00FF00, comment=StringAtOffset, name="Material File">;
+    uint64              shader_name         <            bgcolor=0x00FF00, comment=StringAtOffset, name="Shader Name">;
+    uint                properties_count    <            bgcolor=0x00FF00, comment=StringAtOffset, name="Properties Count">;
+    uint                properties_offset   <format=hex, bgcolor=0x00FF00, comment=StringAtOffset, name="Properties Offset">;
+    local uint64 real_properties_offset = FTell() - sizeof(uint) + properties_offset;
+    uint                static[4]           <            bgcolor=0x0088FF, name="Static">;
+};
+
+struct BDAEMaterials
+{
+    local int i;
+    for (i = 0; i < model_infos.materials_info.materials_count; i++) {
+        BDAEMaterial    material            <                              name="Material">;
+    }
+};
+
+struct BDAEMaterialsInfo
+{
+    uint                materials_count     <            bgcolor=0x00FF00, name="Materials Count">;
+    uint                materials_offset    <format=hex, bgcolor=0x00FF00, name="Materials Info Offset">;
+    local uint real_materials_offset = FTell() - sizeof(uint) + materials_offset;
+};
+
+struct BDAEMaterialProp
+{
+    uint64              property_name_1     <            bgcolor=0x00FF00, comment=StringAtOffset, name="Property Name 1">;
+    uint64              property_name_2     <            bgcolor=0x00FF00, comment=StringAtOffset, name="Property Name 2">;
+    uint                property_type       <            bgcolor=0x00FF00, name="Property Type">;
+    uint                unknown_count       <            bgcolor=0x0000FF>;
+    uint                property_offset     <            bgcolor=0x00FFFF>;
+    uint                value_offset        <            bgcolor=0x00FFFF>;
+};
+
+struct BDAEMaterialProps
+{
+    local int j;
+    for (j = 0; j < materials.material[materials_prop.i].properties_count; j++) {
+        BDAEMaterialProp    material_prop;
+    }
+};
+
+struct BDAEMaterialsProps
+{
+    local int i;
+    for (i = 0; i < model_infos.materials_info.materials_count; i++) {
+        FSeek(materials.material[i].real_properties_offset);
+        BDAEMaterialProps material_prop     <            name="Material Properties">;
+    }
+};
+
+//---------------------Shaders--------------------
+
+//---------------------Meshes---------------------
+
+struct BDAESubmeshData
+{
+    uint                reserved[2]         <            bgcolor=0xFFBB00, name="Reserved">;
+    uint                material_name       <format=hex, bgcolor=0x00FF00, name="Material Name", comment=StringAtOffset>;
+    uint                reserved            <            bgcolor=0xFFBB00, name="Reserved">;
+    uint                unknown_1           <format=hex, bgcolor=0x0000FF>;
+    uint                unknown_2[5]        <            bgcolor=0x0000FF>;
+    uint                first_vertex_index  <            bgcolor=0x00FF00, name="First Vertex Index">;
+    uint                last_vertex_index   <            bgcolor=0x00FF00, name="Last Vertex Index">;
+    uint                faces_count         <            bgcolor=0x00FF00, name="Faces Count">;
+    uint                reserved            <            bgcolor=0xFFBB00, name="Reserved">;
+    uint                faces_offset        <format=hex, bgcolor=0x00FF00, name="Faces Offset">;
+    uint                reserved            <            bgcolor=0xFFBB00, name="Reserved">;
+    uint                padding[4]          <            bgcolor=0xFFBB00, name="Padding">;
+};
+
+struct BDAEMeshData
+{
+    uint                static              <            bgcolor=0x0088FF, comment="Might be vertex block index?">;
+    uint                vertex_count        <            bgcolor=0x00FF00, name="Vertex Count">;
+    uint                unknown_1           <format=hex, bgcolor=0x00FFFF>;
+    uint                submesh_count       <            bgcolor=0x00FF00, name="Submesh Count">;
+    uint                submesh_data_offset <format=hex, bgcolor=0x00FFFF, name="Submesh Data Offset">;
+    
+    local uint real_submesh_data_offset = FTell() - sizeof(uint) + submesh_data_offset;
+    
+    BOUNDING_BOX        bounding_box        <                              name="Bounding Box">;
+    uint                reserved            <            bgcolor=0xFFBB00, name="Reserved">;
+    uint                vertex_block_size   <            bgcolor=0x00FF00, name="FVF Size">;
+    uint                unknown_2[9]        <            bgcolor=0x0000FF>;
+    uint                vertex_data_offset  <format=hex, bgcolor=0x00FF00, name="Vertex Data Offset">;
+    
+    while (FTell() < real_submesh_data_offset) {
+        uint            unknown_3           <            bgcolor=0x0000FF>;
+    }
+    
+    local int i;
+    for (i = 0; i < submesh_count; i++) {
+        BDAESubmeshData submesh_data        <                              name="Submesh Data">;
+    }
+};
+
+struct BDAEMeshesData
+{
+    local int i;
+    local uint mesh_offset;
+    for (i = 0; i < model_infos.meshes_info.meshes_count; i++) {
+        //mesh_offset = meshes.mesh[i].real_mesh_data_offset;
+        FSeek(meshes.mesh[i].real_mesh_data_offset);
+        BDAEMeshData    mesh_data           <                              name="Mesh Data">;
+    }
+};
+
+struct BDAEMesh
+{
+    uint64              mesh_name           <            bgcolor=0x00FF00, comment=StringAtOffset, name="Mesh Name">;
+    uint64              mesh_friendly_name  <            bgcolor=0x00FF00, comment=StringAtOffset, name="Mesh Friendly Name">;
+    uint                reserved            <            bgcolor=0xFFBB00, name="Reserved">;
+    uint                mesh_data_offset    <format=hex, bgcolor=0x00FF00, name="Mesh Data Offset">;
+    local uint real_mesh_data_offset = FTell() - sizeof(uint) + mesh_data_offset;
+};
+
+struct BDAEMeshes
+{
+    local int i;
+    for (i = 0; i < model_infos.meshes_info.meshes_count; i++) {
+        BDAEMesh       mesh                 <                              name="Mesh">;
+    }
+};
+
+struct BDAEMeshesInfo
+{
+    uint                meshes_count        <            bgcolor=0x00FF00, name="Meshes Count">;
+    uint                meshes_offset       <format=hex, bgcolor=0x00FF00, name="Meshes Info Offset">;
+    local uint real_meshes_offset = FTell() - sizeof(uint) + meshes_offset;
+};
+
+//------------------Mesh Morphers-----------------
+
+struct BDAEMeshMorpher
+{
+    uint                reserved[2]                 <            bgcolor=0xFFBB00, name="Reserved">;
+    uint64              mesh_morpher_name           <format=hex, bgcolor=0x00FF00, name="Mesh Morpher Name", comment=StringAtOffset>;
+    uint64              mesh_morpher_info_offset    <format=hex, bgcolor=0x00FF00, name="Mesh Morpher Info Offset">;
+    local uint64 real_mesh_morpher_info_offset = FTell() - sizeof(uint64) + mesh_morpher_info_offset;
+};
+
+struct BDAEMeshMorphers
+{
+    local int i;
+    for (i = 0; i < model_infos.mesh_morphers_info.mesh_morphers_count; i++) {
+        BDAEMeshMorpher mesh_morpher        <                              name="Mesh Morpher">;
+    }
+};
+
+struct BDAEMeshMorphersInfo
+{
+    uint                    mesh_morphers_count  <            bgcolor=0x00FF00, name="Mesh Morphers Count">;
+    uint                    mesh_morphers_offset <format=hex, bgcolor=0x00FF00, name="Mesh Morphers Offset">;
+    local uint real_mesh_morphers_offset = FTell() - sizeof(uint) + mesh_morphers_offset;
+};
+
+struct BDAEMeshMorpherData
+{
+    uint    data_size                   <            bgcolor=0x00FFFF>;
+    uint    data_offset                 <format=hex, bgcolor=0x00FFFF>;
+    local uint real_data_offset = FTell() - sizeof(uint) + data_offset;
+    
+    uint    data_2_size                 <            bgcolor=0x00FFFF>;
+    uint    data_2_offset               <format=hex, bgcolor=0x00FFFF>;
+    local uint real_data_2_offset = FTell() - sizeof(uint) + data_2_offset;
+    
+    XYZ     unknown_1[8];
+    
+    uint64  mesh_name                   <format=hex, bgcolor=0x00FF00, comment=StringAtOffset>;
+    uint    bones_count                 <            bgcolor=0x00FF00>;
+    uint    bones_names_offset          <format=hex, bgcolor=0x00FF00>;
+    local uint64  real_bones_names_offset = FTell() - sizeof(uint) + bones_names_offset;
+    
+    FSeek(real_data_offset);
+//  ...
+    uint start <bgcolor=0x00FFFF>;
+    FSeek(real_bones_names_offset);
+    local int i;
+    for (i = 0; i < bones_count; i++) {
+        uint64  bone_name_offset        <            bgcolor=0xFFBB00, comment=StringAtOffset>;
+    }
+};
+
+struct BDAEMeshMorphersData
+{
+    local int i;
+    for (i = 0; i < model_infos.mesh_morphers_info.mesh_morphers_count; i++) {
+        FSeek(mesh_morphers.mesh_morpher[i].real_mesh_morpher_info_offset);
+        BDAEMeshMorpherData     mesh_morpher_data   <name="Mesh Morpher Data">;
+    }
+};
+
+//----------------Node Collections-----------------
+
+struct BDAENodeCollectionsInfo
+{
+    uint                    node_collections_count  <            bgcolor=0x00FF00>;
+    uint                    node_collections_offset <format=hex, bgcolor=0x00FF00>;
+    local uint real_node_collections_offset = FTell() - sizeof(uint) + node_collections_offset;
+};
+
+//-------------------Model Infos-------------------
+
+struct BDAEModelInfos
+{
+    BDAEVersionInfo         version_info            <name="Version Info">;
+    BDAEUnknownInfo72b      unknown_info_1          <name="Unknown Info 1">;
+    BDAETexturesInfo        textures_info           <name="Textures Info">;
+    BDAEUnknownInfo8b       unknown_info_2          <name="Unknown Info 2">;
+    BDAEMaterialsInfo       materials_info          <name="Materials Info">;
+    BDAEMeshesInfo          meshes_info             <name="Meshes Info">;
+    BDAEMeshMorphersInfo    mesh_morphers_info      <name="Mesh Morphers Info">;
+    BDAEUnknownInfo8b       unknown_info_3[4]       <name="Unknown Info 3">;
+    BDAENodeCollectionsInfo nodes_info              <name="Node Collections Info">;
+};
+
+//------------------BDAE Vertices-----------------
+
+struct BDAEMeshVertices
+{
+    local string template = "Unknown FVF size = %d.";
+    local string wrnng;
+    uint                marker              <            bgcolor=0x00FF00, name="Section Marker">;
+    for (j = 0; j < meshes_data.mesh_data[i].vertex_count; j++) {
+        switch (meshes_data.mesh_data[i].vertex_block_size) {
+            case 32: FVF32  vertex_prop     <                              name="Vertex Properties (32b)">; break;
+            case 44: FVF44  vertex_prop     <                              name="Vertex Properties (44b)">; break;
+            case 56: FVF56  vertex_prop     <                              name="Vertex Properties (56b)">; break;
+            case 60: FVF60  vertex_prop     <                              name="Vertex Properties (60b)">; break;
+            default: 
+                SPrintf(wrnng, template, meshes_data.mesh_data[i].vertex_block_size);
+                Warning(wrnng);
+        }
+    }
+};
+
+struct BDAEVertices
+{
+    local int i, j;
+    for (i = 0; i < model_infos.meshes_info.meshes_count; i++) {
+        FSeek(meshes_data.mesh_data[i].vertex_data_offset);
+        BDAEMeshVertices mesh_vertices      <                              name="Mesh Vertices">;
+    }
+};
+
+//----------------------BDAE----------------------
+
+struct BDAEFile
+{
+  FSeek(0);
+    BDAEHeader          header              <                              name="BDAE Header">;
+  FSeek(header.data_pointers_offset);
+    BDAEPointers        pointers            <                              name="BDAE Data Pointers">;
+  FSeek(header.strings_offset);
+    BDAEStrings         strings             <                              name="BDAE Strings">;
+  FSeek(header.model_info_offset);
+    BDAEModelInfos      model_infos         <                              name="BDAE Model Infos">;
+  FSeek(model_infos.textures_info.real_textures_offset);
+    BDAETextures        textures            <                              name="BDAE Textures">;
+  FSeek(model_infos.materials_info.real_materials_offset);
+    BDAEMaterials       materials           <                              name="BDAE Materials">;
+    BDAEMaterialsProps  materials_prop      <                              name="BDAE Materials Properties">;
+//  FSeek(model_infos.shaders_info.real_shaders_offset);
+//    BDAEShaders         shaders             <                              name="BDAE Shaders">;
+  FSeek(model_infos.meshes_info.real_meshes_offset);
+    BDAEMeshes          meshes              <                              name="BDAE Meshes">;
+    BDAEMeshesData      meshes_data         <                              name="BDAE Meshes Data">;
+  FSeek(model_infos.mesh_morphers_info.real_mesh_morphers_offset);
+    BDAEMeshMorphers    mesh_morphers       <                              name="BDAE Mesh Morphers">;
+    BDAEMeshMorphersData mesh_morphers_data <                              name="BDAE Mesh Morphers Data">;
+//  TODO: Rework offset recognition to group them by meshes and submeshes
+    BDAEMeshesOffsets   meshes_offsets      <                              name="BDAE Model Vertices And Faces Info">;
+    BDAEVertices        vertices            <                              name="BDAE Vertices">;
+} file <name="BDAE File">;
+
+/*-----------------Obsolete-----------------------
+
+struct BDAEStrings
+{
+    local uint string_size;
+    local uint64 chunk_size = 0;
+    FSeek(header.strings_offset);
+    while (FTell() + 1 <= header.offset_1) {
+        string_size = ReadUInt(FTell());
+        chunk_size = chunk_size + sizeof(uint) + StringLength(string_size);
+        FSeek(header.strings_offset + chunk_size);
+    }
+    FSeek(header.strings_offset);
+    uchar string_data[chunk_size] <bgcolor=0xFFFF00>;
+};

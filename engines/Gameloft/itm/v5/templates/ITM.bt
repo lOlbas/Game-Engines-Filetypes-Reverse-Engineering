@@ -1,0 +1,90 @@
+//------------------------------------------------
+//--- 010 Editor v7.0 Binary Template
+//
+//      File: ITM.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: ITM Format v5
+//  Category: 
+// File Mask: *.itm
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct XYZ
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+    float Z <bgcolor=0x00FF00, name="Z">;
+};
+
+string WarnIfNotMinusOne(uint value) { if (value != -1) Printf("Value is not MINUS ONE at 0x%X.\n", FTell()); return (value == -1) ? "" : "NOT MINUS ONE!"; }
+string WarnIfNotZero(uint value) { if (value != 0) Printf("Value is not ZERO at 0x%X.\n", FTell()); return (value == 0) ? "" : "NOT ZERO!"; }
+string WarnIfNotOne(uint value) { if (value != 1) Printf("Value is not ONE at 0x%X.\n", FTell()); return (value == 1) ? "" : "NOT ONE!"; }
+string WarnIfNotTwo(uint value) { if (value != 2) Printf("Value is not TWO at 0x%X.\n", FTell()); return (value == 2) ? "" : "NOT TWO!"; }
+string WarnIfNotFour(uint value) { if (value != 4) Printf("Value is not FOUR at 0x%X.\n", FTell()); return (value == 4) ? "" : "NOT FOUR!"; }
+
+struct ITMHeader
+{
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    uint format_version <bgcolor=0x00FF00, name="Format Version">;
+    int chunk_x_position <bgcolor=0x00FF00, name="Chunk Position By X Axis">;
+    int chunk_z_position <bgcolor=0x00FF00, name="Chunk Position By Z Axis">;
+    uint objects_count <bgcolor=0x00FF00, name="Chunk Objects Count">;
+    uint models_names_count <bgcolor=0x00FF00, name="Models Names Count">;
+    uint unknown_value_1 <bgcolor=0x0000FF, name="Unknown Value 1">;
+};
+
+struct ITMObject
+{
+    uint object_id <bgcolor=0x00FF00, name="Object ID">;
+    int unknown_object_value_1 <bgcolor=0x0000FF, name="Unknown Object Value 1", comment=WarnIfNotZero>;
+    uint model_name_index <bgcolor=0x00FF00, name="Model Name Index">;
+    XYZ position <name="Object Position">;
+    float unknown_float_value_1 <bgcolor=0x0000FF, name="Unknown Float Value 1">;
+    XYZ rotation <name="Object Rotation">;
+    XYZ scale <name="Object Scale">;
+    int unknown_object_value_2 <bgcolor=0x0000FF, name="Unknown Object Value 2", comment=WarnIfNotMinusOne>;
+    int unknown_object_value_3 <bgcolor=0x0000FF, name="Unknown Object Value 3", comment=WarnIfNotMinusOne>;
+    int unknown_object_value_4 <bgcolor=0x0000FF, name="Unknown Object Value 4", comment=WarnIfNotOne>;
+    int unknown_object_value_5 <bgcolor=0x0000FF, name="Unknown Object Value 5", comment=WarnIfNotZero>;
+    int unknown_object_value_6 <bgcolor=0x0000FF, name="Unknown Object Value 6", comment=WarnIfNotZero>;
+    int unknown_object_value_7 <bgcolor=0x0000FF, name="Unknown Object Value 7", comment=WarnIfNotTwo>;
+};
+
+struct ITMObjects
+{
+    local uint i;
+    for (i = 0; i < header.objects_count; i++) {
+        ITMObject object <name="ITM Object">;
+    }
+};
+
+struct ITMString
+{
+    char model_path[strings.lengths[strings.i]] <bgcolor=0x00FF00>;
+};
+
+struct ITMStrings
+{
+    local uint i;
+    local uint pos_prev = 0;
+    local uint lengths[header.models_names_count];
+    
+    for (i = 0; i < header.models_names_count; i++) {
+        uint offset <bgcolor=0x00FF00, name="String Length">;
+        lengths[i] = offset - pos_prev;
+        pos_prev = offset;
+    }
+    
+    for (i = 0; i < header.models_names_count; i++) {
+        ITMString model_path <name="Model Path">;
+    }
+};
+
+struct ITMFile
+{
+    ITMHeader header <name="Header">;
+    ITMObjects objects <name="Objects">;
+    ITMStrings strings <name="Strings">;
+} file <name="ITM">;

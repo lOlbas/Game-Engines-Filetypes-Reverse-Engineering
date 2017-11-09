@@ -1,0 +1,610 @@
+//------------------------------------------------
+//--- 010 Editor v7.0.2 Binary Template
+//
+//      File: BDAE.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: BDAE Format v0.0.0.946
+//  Category: 
+// File Mask: *.bdae
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef enum <WORD>
+{
+    UNKNOWN     = 0x0000FF,
+    KNOWN       = 0x00FF00,
+    UNNAMED     = 0x00FFFF,
+    RESERVED    = 0xFFBB00,
+    TODO        = 0xFFFF00,
+    CONST       = 0x0088FF
+} LEVELS;
+
+//-------------------Functions--------------------
+
+uint StringLength(uint size) {
+    return (size == 0) ? 0 : ((int)(size / 4) + 1) * 4;
+}
+
+string StringAtOffset(uint offset)
+{
+    uint fpos = FTell();
+    FSeek(offset);
+    
+    string s = ReadString(offset);
+    
+    FSeek(fpos);
+    
+    return s;
+}
+
+string WarnIfNotZero(uint value) { if (value != 0) Printf("Value is not ZERO at 0x%X.\n", FTell()); return (value == 0) ? "" : "NOT ZERO!"; }
+string WarnIfNotOne(uint value) { if (value != 1) Printf("Value is not ONE at 0x%X.\n", FTell()); return (value == 1) ? "" : "NOT ONE!"; }
+string WarnIfNotTwo(uint value) { if (value != 2) Printf("Value is not TWO at 0x%X.\n", FTell()); return (value == 2) ? "" : "NOT TWO!"; }
+string WarnIfNotThree(uint value) { if (value != 3) Printf("Value is not THREE at 0x%X.\n", FTell()); return (value == 3) ? "" : "NOT THREE!"; }
+string WarnIfNotFour(uint value) { if (value != 4) Printf("Value is not FOUR at 0x%X.\n", FTell()); return (value == 4) ? "" : "NOT FOUR!"; }
+string WarnIfNotSix(uint value) { if (value != 6) Printf("Value is not SIX at 0x%X.\n", FTell()); return (value == 6) ? "" : "NOT SIX!"; }
+
+//------------------Data Structs------------------
+
+struct HEADER_STRING
+{
+    uint string_size <bgcolor=0x00FF00, name="String Length">;
+    if (string_size > 0)
+        char string_value[StringLength(string_size)] <bgcolor=0xBBBBBB, name="String Value">;
+};
+
+//----------------------Main----------------------
+
+LittleEndian();
+
+struct BDAEHeader
+{
+    FSeek(0);
+    
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    short bom <bgcolor=0x00FF00, name="Byte Order Mark">;
+    short bom_padding <bgcolor=0x00FF00, name="Byte Order Mark Padding">;
+    uint header_size <format=hex, bgcolor=0x00FF00, name="Header Size">;
+    uint bdae_size <format=hex, bgcolor=0x00FF00, name="File Size">;
+    uint64 data_pointers_count <bgcolor=0x00FF00, name="Data Pointers Count">;
+    uint64 data_pointers_offset <format=hex, bgcolor=0x00FF00, name="Data Pointers Offset">;
+    uint64 strings_offset <format=hex, bgcolor=0x00FF00, name="Strings Offset">;
+    uint64 model_info_offset <format=hex, bgcolor=0x00FFFF, name="Model Info Offset">;
+    uint64 offset_2 <format=hex, bgcolor=0x00FFFF, name="After Previous Section Offset">;
+    uint64 unknown <format=hex, bgcolor=0x0000FF, name="Unknown">;
+};
+
+struct BDAEPointers
+{
+    FSeek(header.data_pointers_offset);
+    
+    local int i;
+    for (i = 0; i < header.data_pointers_count; i++)
+        uint64 data_pointer <format=hex, bgcolor=0x0000FF, name="Data Pointer ">;
+};
+
+struct BDAEStrings
+{
+    local uint fpos = header.strings_offset;
+    local int i = 0;
+    
+    while (fpos + 1 <= header.model_info_offset) {
+        FSeek(fpos);
+        HEADER_STRING strings <name="Header String">;
+        fpos = fpos + sizeof(strings[i].string_size) + StringLength(strings[i].string_size);
+        i++;
+    }
+};
+
+struct BDAEUnknownInfo3
+{
+    uint count <bgcolor=0x00FFFF, name="Unknown Subsections Count">;
+    uint relative_offset <bgcolor=0x00FFFF, name="Unknown Subsections Offset">;
+    local uint offset = FTell() - sizeof(uint) + relative_offset;
+};
+
+struct BDAEPackagesInfo
+{
+    uint count <bgcolor=0x00FFFF, name="Packages Count", comment=WarnIfNotOne>;
+    uint relative_offset <format=hex, bgcolor=0x00FF00, name="Packages Info Offset">;
+    local uint offset = FTell() - sizeof(uint) + relative_offset;
+};
+
+struct BDAETexturesInfo
+{
+    uint count <bgcolor=0x00FF00, name="Textures Count">;
+    uint relative_offset <format=hex, bgcolor=0x00FF00, name="Textures Info Offset">;
+    local uint offset = FTell() - sizeof(uint) + relative_offset;
+};
+
+// TODO: incomplete
+struct BDAEModelInfos
+{
+    FSeek(header.model_info_offset);
+    
+    /* Version Info */
+    uint version <format=hex, bgcolor=0x00FF00, name="Version", comment=StringAtOffset>;
+    
+    /* */
+    int const_zero_1[5] <bgcolor=0x0088FF, name="Const ZERO #1", comment=WarnIfNotZero>;
+    uint const_one_1 <bgcolor=0x0088FF, name="Const ONE #1", comment=WarnIfNotOne>;
+    uint const_zero_2 <bgcolor=0x0088FF, name="Const ZERO #2", comment=WarnIfNotZero>;
+    
+    /* */
+    uint unknown_count_1 <bgcolor=0x0000FF, name="Unknown Count #1">;
+    
+    /* */
+    uint const_zero_3[3] <bgcolor=0x0088FF, name="Const ZERO #2", comment=WarnIfNotZero>;
+    
+    /* Either 0x7FFFFFFF 0x80000000 or 0x00000000 and some count*/
+    int unknown_marker_1 <bgcolor=0x0000FF, name="Unknown Marker #1">;
+    int unknown_marker_2 <bgcolor=0x0000FF, name="Unknown Marker #2">;
+    uint const_zero_4[2] <bgcolor=0x0088FF, name="Const ZERO #3", comment=WarnIfNotZero>;
+    
+    /* Node Translations Info */
+    uint node_translations_count <bgcolor=0x00FF00, name="Nodes Translations Count">;
+    uint relative_node_translations_offset <format=hex, bgcolor=0x00FF00, name="Nodes Translations Info Offset">;
+    local uint node_translations_offset = FTell() - sizeof(uint) + relative_node_translations_offset;
+    
+    /* Audios Info */
+    uint relative_unknown_offset_1 <bgcolor=0x00FFFF, name="Unknown Offset #1">; // Not zero in animations.bdae
+    local uint unknown_offset_1 = FTell() - sizeof(uint) + relative_unknown_offset_1;
+    
+    /* Unknown Info 2 */
+    uint relative_unknown_offset_2 <bgcolor=0x00FFFF, name="Unknown Offset #2">; // Not zero if has node translations
+    local uint unknown_offset_2 = FTell() - sizeof(uint) + relative_unknown_offset_2;
+    
+    /* Unknown Info 3 */
+    uint unknown_sections_count <bgcolor=0x00FFFF, name="Unknown Sections Count", comment=WarnIfNotTwo>;
+    local int i;
+    for (i = 0; i < unknown_sections_count; i++) {
+        BDAEUnknownInfo3 unknown_info_3 <name="Unknown Info 3">;
+    }
+    
+    /* Packages Info*/
+    BDAEPackagesInfo packages_info <name="Packages Info">;
+    
+    /* Unknown Info 5*/
+    uint unknown5[10] <format=hex, bgcolor=0x0088FF, name="Const ZERO #5", comment=WarnIfNotZero>;
+    
+    /* Textures Info */
+    BDAETexturesInfo textures_info <name="Textures Info">;
+    
+    /* */
+    uint const_zero_6[4] <bgcolor=0x0088FF, name="Const ZERO #5", comment=WarnIfNotZero>;
+    
+    /* Materials Info*/
+    uint materials_count <bgcolor=0x00FF00, name="Materials Count">;
+    uint relative_materials_offset <format=hex, bgcolor=0x00FF00, name="Materials Info Offset">;
+    local uint materials_offset = FTell() - sizeof(uint) + relative_materials_offset;
+    
+    /*Meshes Info*/
+    uint meshes_count <bgcolor=0x00FF00, name="Meshes Count">;
+    uint relative_meshes_offset <format=hex, bgcolor=0x00FF00, name="Meshes Info Offset">;
+    local uint meshes_offset = FTell() - sizeof(uint) + relative_meshes_offset;
+};
+
+struct BDAENodeTranslationNodes
+{
+    uint node_name <format=hex, bgcolor=0x00FF00, name="Node Name", comment=StringAtOffset>;
+    uint const_zero_1 <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+    uint const_one_1 <bgcolor=0x0000FF, comment=WarnIfNotOne>; // Can be 3
+    uint const_zero_2 <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+    int const_big_1 <bgcolor=0x0000FF, comment="Always 0xFFFFFFFF?">;
+    int const_big_2 <bgcolor=0x0000FF, comment="Always 0xFFFFFFFF?">;
+};
+
+struct BDAENodeProperties
+{
+     uint unknown_1 <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+     uint unknown_2 <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+     uint unknown_3 <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+     uint index_1 <bgcolor=0x00FFFF, comment="Index 1">;
+     uint unknown_4 <bgcolor=0x0000FF, comment=WarnIfNotSix>; 
+     uint unknown_5 <bgcolor=0x0000FF, comment=WarnIfNotThree>;
+     uint index_2 <bgcolor=0x00FFFF, comment="Index 2">;
+     uint flags <bgcolor=0x0000FF, comment="Flags">;
+};
+
+struct BDAENodeTranslation
+{
+    uint node_translation_name <format=hex, bgcolor=0x00FF00, name="Node Translation Name", comment=StringAtOffset>;
+    uint reserved <bgcolor=0x0088FF, comment=WarnIfNotZero>;
+    
+    uint properties_count <bgcolor=0x00FF00, name="Node Properties Count", comment=WarnIfNotOne>;
+    uint relative_properties_offset <bgcolor=0x00FF00, name="Node Properties Offset">;
+    local uint properties_offset = FTell() - sizeof(uint) + relative_properties_offset;
+    
+    uint nodes_count <bgcolor=0x00FF00, name="Nodes Count", comment=WarnIfNotOne>;
+    uint relative_nodes_info_offset <bgcolor=0x00FF00, name="Nodes Info Offset">;
+    local uint nodes_info_offset = FTell() - sizeof(uint) + relative_nodes_info_offset;
+    
+    uint padding[4] <bgcolor=0x0088FF, name="Padding", comment=WarnIfNotZero>;
+    
+    /* Properties */
+    local uint fpos = FTell();
+    
+    FSeek(properties_offset);
+    local int i;
+    for (i = 0; i < properties_count; i++) {
+        BDAENodeProperties node_properties <name="Node Properties">;
+    }
+    
+    /* Nodes */
+    FSeek(nodes_info_offset);
+    for (i = 0; i < properties_count; i++) {
+        BDAENodeTranslationNodes nodes <name="Nodes">;
+    }
+};
+
+struct BDAENodeTranslations
+{
+    local uint fpos = file.model_infos.node_translations_offset;
+    local int i;
+    
+    for (i = 0; i < model_infos.node_translations_count; i++) {
+        FSeek(fpos);
+        BDAENodeTranslation node <name="Node Translation">;
+        fpos = fpos + 40;
+    }
+};
+
+struct BDAEAudioUnknown1
+{
+    local int i;
+    for (i = 0; i < file.audio_sfx.section_1_count; i++) {
+        ushort section_1_values <bgcolor=0x0000FF, name="Section 1 Value">;
+    }
+};
+
+struct BDAEAudioSFXData
+{
+    uint audios_count <bgcolor=0x00FF00, name="Audios Count?", comment=WarnIfNotOne>;
+    uint relative_audios_data_offset <bgcolor=0x00FF00, name="Audios Data Offset">;
+    local uint audios_data_offset = FTell() - sizeof(uint) + relative_audios_data_offset;
+};
+
+struct BDAEAudiosData
+{
+    local int i;
+    for (i = 0; i < file.audio_sfx.section_2_count; i++) {
+        BDAEAudioSFXData audio_data <name="Audio SFX Data">;
+    }
+};
+
+struct BDAEAudios
+{
+    local int i;
+    local int j;
+    for (i = 0; i < file.audio_sfx.section_2_count; i++) {
+        for (j = 0; j < file.audio_sfx.audios_data.audio_data[i].audios_count; j++) {
+            uint64 filename <format=hex, bgcolor=0x00FF00, name="File Name", comment=StringAtOffset>;
+        }
+    }
+};
+
+struct BDAEAudioSFX
+{
+    if (file.model_infos.relative_unknown_offset_1 > 0) {
+        FSeek(file.model_infos.unknown_offset_1);
+        
+        uint some_count <bgcolor=0x0000FF, comment=WarnIfNotThree>;
+        uint some_subcount <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+        
+        uint section_1_count <bgcolor=0x00FF00>;
+        uint relative_section_1_offset <bgcolor=0x00FF00>;
+        local uint section_1_offset = FTell() - sizeof(uint) + relative_section_1_offset;
+        
+        uint section_2_count <bgcolor=0x00FF00>;
+        uint relative_section_2_offset <bgcolor=0x00FF00>;
+        local uint section_2_offset = FTell() - sizeof(uint) + relative_section_2_offset;
+        
+        FSeek(section_1_offset);
+        BDAEAudioUnknown1 audio_unknown_1 <name="Audio Unknown 1">;
+        
+        uint zero_1 <bgcolor=0x0088FF>;
+        
+        FSeek(section_2_offset);
+        BDAEAudiosData audios_data <name="Audios Data">;
+        
+        BDAEAudios audios <name="Audios">;
+    }
+};
+
+// TODO: invalid
+struct BDAEUnknown2
+{
+    uint const_zero_1 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint const_big_1 <bgcolor=0x0088FF, name="Flag?">; // WarnIfNot(16777216);
+    
+    uint offset_1 <bgcolor=0x00FFFF, name="Offset">;
+    uint const_zero_2 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint count_1 <bgcolor=0x0000FF, name="Count">;
+    uint const_zero_3[3] <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+};
+
+// TODO: invalid
+struct BDAEUnknowns2
+{
+    FSeek(file.model_infos.unknown_offset_2);
+    
+    uint some_count <bgcolor=0x00FF00>;
+    uint some_subcount <bgcolor=0x0000FF>; //WarnIfNotFour
+    uint const_zero_1 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint unknown_count_1 <bgcolor=0x0000FF, name="Unknown Count #1">; // Same as file.model_infos.unknown_count_1 (not)
+    // if (unknown_count_1 != file.model_infos.unknown_count_1) Warning("BDAEUnknowns1 unknown_count_1 do not equal!");
+    
+    local int i;
+    local int j;
+    for (i = 0; i < some_count; i++)
+    //for (j = 0; j < some_subcount; j++) 
+        BDAEUnknown2 unknown <name="Unknown">;
+    //
+    
+    uint const_zero_2 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint unknown_count_2 <bgcolor=0x0000FF, name="Unknown Count #1">;
+};
+
+struct BDAEUnknown3_1
+{
+    uint64 combat_1 <bgcolor=0x0000FF, comment=StringAtOffset>;
+    uint timer_1 <bgcolor=0x0000FF>;
+    uint timer_2 <bgcolor=0x0000FF>;
+    uint timer_3 <bgcolor=0x0000FF>;
+    uint const_zero <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+};
+
+struct BDAEUnknowns3
+{
+    local int i;
+    local int j;
+    local int count;
+    local int offset;
+    if (file.model_infos.unknown_sections_count >= 1) {
+        if (file.model_infos.unknown_info_3[0].count > 0) {
+            FSeek(file.model_infos.unknown_info_3[0].offset);
+            for (i = 0; i < file.model_infos.unknown_info_3[0].count; i++) {
+                BDAEUnknown3_1 unknown_3_1 <name="AUTO Current Range Unknown">;
+            }
+        }
+    }
+    if (file.model_infos.unknown_sections_count >= 2) {
+        if (file.model_infos.unknown_info_3[1].count > 0) {
+            FSeek(file.model_infos.unknown_info_3[1].offset);
+            ushort some_count <bgcolor=0x00FFFF, name="Some Count">;
+            local uint taken_count = StringLength(some_count);
+            local uint index_count = file.model_infos.unknown_info_3[1].count - 1;
+            
+            for (i = 0; i < some_count; i++) {
+                ushort index <bgcolor=0x0088FF, name="Unknown Index?">;
+            }
+            ushort padding[(taken_count - index_count) / 2] <bgcolor=0x0088FF, name="Padding">;
+        }
+    }
+};
+
+//--------------------Packages--------------------
+
+struct BDAEPackage
+{
+    uint64 name <bgcolor=0x00FF00, name="Package Name", comment=StringAtOffset>;
+    uint some_count1 <bgcolor=0x0000FF, name="Some Count 1", comment=WarnIfNotOne>;
+    
+    uint models_count <bgcolor=0x00FF00, name="Models Count", comment=WarnIfNotOne>;
+    uint relative_models_offset <bgcolor=0x00FF00, name="Relative Models Offset">;
+    local uint models_offset = FTell() - sizeof(uint) + relative_models_offset;
+    
+    uint animations_count <bgcolor=0x00FF00, name="Animations Count", comment=WarnIfNotOne>;
+    uint relative_animations_offset <bgcolor=0x00FF00, name="Relative Animations Offset">;
+    local uint animations_offset = FTell() - sizeof(uint) + relative_animations_offset;
+    
+    uint unknown_count <bgcolor=0x0000FF, name="Unknown Count", comment=WarnIfNotOne>;
+    uint relative_unknown_offset <bgcolor=0x0000FF, name="Relative Unknown Offset">;
+    local uint unknown_offset = FTell() - sizeof(uint) + relative_unknown_offset;
+    
+    uint const_zero_1[7] <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+    
+    local int i;
+    
+    /* */
+    FSeek(models_offset);
+    for (i = 0; i < models_count; i++) {
+        uint64 model_relative_path <bgcolor=0x00FF00, name="BDAE Model File Relative Path", comment=StringAtOffset>;
+    }
+    
+    /* */
+    FSeek(animations_offset);
+    for (i = 0; i < animations_count; i++) {
+        uint64 animations_relative_path <bgcolor=0x00FF00, name="BDAE Animations File Relative Path", comment=StringAtOffset>;
+    }
+    
+    uint64 unknown_name <bgcolor=0x0000FF, name="BDAE Unknown Name", comment=StringAtOffset>;
+    
+    uint unknown_values_count <bgcolor=0x00FFFF, name="Unknown Values Count">;
+    uint unknown_value_1 <bgcolor=0x0000FF, name="Unknown Value #1", comment=WarnIfNotFour>;
+    
+    for (i = 0; i < unknown_values_count; i++) {
+        uint const_zero_2_1 <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+        uint const_zero_2_2 <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+    }
+    
+    FSeek(unknown_offset);
+    uint64 name2 <bgcolor=0x00FF00, name="Package Name", comment=StringAtOffset>; // "default"
+    uint64 name2 <bgcolor=0x00FF00, name="Package Name", comment=StringAtOffset>; // ""
+    
+    uint some_count2  <bgcolor=0x0000FF, name="Some Count 2">;
+    uint unknown_value_2 <bgcolor=0x0000FF, name="Unknown Value #2", comment=WarnIfNotFour>;
+    
+    for (i = 0; i < some_count2; i++) {
+        uint64 animation_name_1 <bgcolor=0x00FF00, comment=StringAtOffset>;
+        uint64 animation_file <bgcolor=0x00FF00, comment=StringAtOffset>;
+        uint64 animation_name_2 <bgcolor=0x00FF00, comment=StringAtOffset>;
+    }
+};
+
+struct BDAEPackages
+{
+    if (file.model_infos.packages_info.count > 0) {
+        FSeek(file.model_infos.packages_info.offset);
+        local int i;
+        for (i = 0; i < file.model_infos.packages_info.count; i++) {
+            BDAEPackage package <name="Package Info">;
+        }
+    }
+};
+
+//--------------------Textures--------------------
+
+struct BDAETexture
+{
+    uint64 map_name <bgcolor=0x00FF00, name="Tetxure Map", comment=StringAtOffset>;
+    uint64 map_name_friendly <bgcolor=0x00FF00, name="Tetxure Map Friendly", comment=StringAtOffset>;
+    uint64 texture_file <bgcolor=0x00FF00, name="Texture Path", comment=StringAtOffset>;
+    uint64 zero_padding <bgcolor=0x0088FF, name="Reserved">;
+};
+
+struct BDAETextures
+{
+    if (file.model_infos.textures_info.count > 0) {
+        FSeek(file.model_infos.textures_info.offset);
+        local int i;
+        for (i = 0; i < file.model_infos.textures_info.count; i++) {
+            BDAETexture texture <name="Texture">;
+        }
+    }
+};
+
+//-------------------Materials--------------------
+
+struct BDAEMaterial
+{
+    uint64 material_name <bgcolor=0x00FF00, name="Material Name", comment=StringAtOffset>;
+    uint64 material_file <bgcolor=0x00FF00, name="Material File", comment=StringAtOffset>;
+    uint64 shader_name <bgcolor=0x00FF00, name="Shader Name", comment=StringAtOffset>;
+    uint unknown_1[2] <bgcolor=0x0088FF, name="Unknown 1">;
+    uint properties_count <bgcolor=0x00FF00, name="Properties Count">;
+    uint realtive_properties_offset <format=hex, bgcolor=0x00FF00, name="Properties Offset">;
+    local uint64 properties_offset = FTell() - sizeof(uint) + realtive_properties_offset;
+    uint unknown_2[4] <bgcolor=0x0088FF, name="Unknown 2", comment=WarnIfNotZero>;
+    int unknown_3 <bgcolor=0x0088FF, name="Unknown 3 (0xFFFFFFFF)">; // WarnIfNot(-1)
+    uint unknown_4 <bgcolor=0x0088FF, name="Unknown 2 (0x00000080">; // WarnIfNot(0x80)
+    uint unknown_5[4] <bgcolor=0x0088FF, name="Unknown 2", comment=WarnIfNotZero>;
+};
+
+struct BDAEMaterials
+{
+    if (file.model_infos.materials_count > 0) {
+        FSeek(file.model_infos.materials_offset);
+        local int i;
+        for (i = 0; i < file.model_infos.materials_count; i++) {
+            BDAEMaterial material <name="Material">;
+        }
+    }
+};
+
+//----Material properties----
+
+struct BDAEMaterialPropertyValue
+{
+    
+};
+
+struct BDAEMaterialPropertyType17
+{
+    uint const_one <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+    uint const_zero <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+    short unknown[12] <bgcolor=0x0000FF>;
+};
+
+struct BDAEMaterialProperty
+{
+    uint64 property_name_1 <bgcolor=0x00FF00, name="Property Name 1", comment=StringAtOffset>;
+    uint64 property_name_2 <bgcolor=0x00FF00, name="Property Name 2", comment=StringAtOffset>;
+    uint property_type <bgcolor=0x00FF00, name="Property Type">;
+    uint unknown_count <bgcolor=0x00FFFF, name="Properties Count?", comment=WarnIfNotOne>;
+    uint relative_property_offset <bgcolor=0x00FFFF>;
+    local uint property_offset = FTell() - sizeof(uint) + relative_property_offset;
+    uint relative_value_offset <bgcolor=0x00FFFF>;
+    
+    local uint64 fpos = FTell();
+    
+    FSeek(property_offset);
+    if (property_type == 17) {
+        BDAEMaterialPropertyType17 values <name="Property Values">;
+    }
+    
+    FSeek(fpos);
+};
+
+struct BDAEMaterialProperties
+{
+    local int j;
+    for (j = 0; j < materials.material[materials_prop.i].properties_count; j++) {
+        BDAEMaterialProperty material_prop <name="Material Property">;
+    }
+};
+
+struct BDAEMaterialsProps
+{
+    local int i;
+    for (i = 0; i < model_infos.materials_count; i++) {
+        FSeek(materials.material[i].properties_offset);
+        BDAEMaterialProperties material_prop <name="Material Properties">;
+    }
+};
+
+//---------------------Meshes---------------------
+
+struct BDAEMeshData
+{
+    uint static <bgcolor=0x0088FF>;
+};
+
+struct BDAEMeshesData
+{
+    local int i;
+    for (i = 0; i < model_infos.meshes_count; i++) {
+        FSeek(meshes.mesh[i].mesh_data_offset);
+        BDAEMeshData mesh_data <name="Mesh Data">;
+    }
+};
+
+struct BDAEMesh
+{
+    uint64 mesh_name <bgcolor=0x00FF00, comment=StringAtOffset, name="Mesh Name">;
+    uint64 mesh_friendly_name <bgcolor=0x00FF00, comment=StringAtOffset, name="Mesh Friendly Name">;
+    uint reserved <bgcolor=0x0088FF, name="Reserved">;
+    uint relative_mesh_data_offset <format=hex, bgcolor=0x00FF00, name="Mesh Data Offset">;
+    local uint mesh_data_offset = FTell() - sizeof(uint) + relative_mesh_data_offset;
+};
+
+struct BDAEMeshes
+{
+    FSeek(file.model_infos.meshes_offset);
+    local int i;
+    for (i = 0; i < file.model_infos.meshes_count; i++) {
+        BDAEMesh mesh <name="Mesh">;
+    }
+};
+
+//----------------------BDAE----------------------
+
+struct BDAEFile
+{
+    BDAEHeader header <name="Header">;
+        // BDAEPointers pointers <name="Data Pointers">;
+        // BDAEStrings strings <name="Strings">;
+    BDAEModelInfos model_infos <name="Model Infos">;
+        // BDAENodeTranslations node_translations <name="Node Translations">;
+        // BDAEAudioSFX audio_sfx <name="Animation Audio SFX">;
+        // BDAEUnknowns2 unknown_2 <name="Unknown Translation Section #2">;
+        // BDAEUnknowns3 unknown_3 <name="Unknown Section #3">;
+        // BDAEPackages packages <name="Packages">;
+    // BDAETextures textures <name="Textures">;
+    BDAEMaterials materials <name="Materials">;
+    BDAEMaterialsProps materials_prop <name="Material Properties">;
+    BDAEMeshes meshes <name="Meshes">;
+    BDAEMeshesData meshes_data <name="Meshes Data">;
+} file <name="BDAE">;

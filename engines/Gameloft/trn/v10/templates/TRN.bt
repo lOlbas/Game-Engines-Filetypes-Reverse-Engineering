@@ -1,0 +1,94 @@
+//------------------------------------------------
+//--- 010 Editor v7.0 Binary Template
+//
+//      File: TRN.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: TRN Format v10
+//  Category: 
+// File Mask: *.trn
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+local uint dimension = 64;
+local uint vertex_line = dimension + 1;
+
+struct TRNHeader
+{
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    uint format_version <bgcolor=0x00FF00, name="Format Version">;
+    int chunk_x_position <bgcolor=0x00FF00, name="Chunk Position By X Axis">;
+    int chunk_z_position <bgcolor=0x00FF00, name="Chunk Position By Z Axis">;
+};
+
+struct TRNSection1
+{
+    local uint i;
+    for (i = 0; i < 193 * 2; i++) {
+        int unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    }
+};
+
+struct TRNHeightMap
+{
+    local uint y, x;
+    for (y = 0; y < vertex_line; y++) {
+        for (x = 0; x < vertex_line; x++) {
+            short vertex_height <bgcolor=0x00FF00, name="Vertex Height">;
+        }
+    }
+};
+
+struct TRNSection2
+{
+    local uint i;
+    for (i = 0; i < vertex_line * vertex_line; i++) {
+        short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    }
+};
+
+struct TRNSection3
+{
+    local uint i;
+    for (i = 0; i < vertex_line * vertex_line; i++) {
+        byte unknown_value_1 <bgcolor=0x0000FF, name="Unknown Value 1">;
+        byte unknown_value_2 <bgcolor=0x0000FF, name="Unknown Value 2">;
+        byte unknown_value_3 <bgcolor=0x0000FF, name="Unknown Value 3">;
+    }
+};
+
+struct TRNString
+{
+    char model_path[strings.lengths[strings.i]] <bgcolor=0x00FF00>;
+};
+
+struct TRNStrings
+{
+    uint count <bgcolor=0x00FF00, name="Strings Count">;
+    
+    local uint i;
+    local uint pos_prev = 0;
+    local uint lengths[count];
+    
+    for (i = 0; i < count; i++) {
+        uint offset <bgcolor=0x00FF00, name="String Length">;
+        lengths[i] = offset - pos_prev;
+        pos_prev = offset;
+    }
+    
+    for (i = 0; i < count; i++) {
+        TRNString texture_path <name="Texture Path">;
+    }
+};
+
+struct TRNFile
+{
+    TRNHeader header <name="Header">;
+    TRNSection1 section_1 <name="Unknown Section 1">;
+    TRNHeightMap height_map <name="Height Map">;
+    TRNSection2 section_2 <name="Unknown Section 2">;
+    TRNSection3 section_3 <name="Unknown Section 3">;
+    byte padding <bgcolor=0xFFBB00, name="Padding">;
+    TRNStrings strings <name="Strings">;
+} file <name="TRN">;
