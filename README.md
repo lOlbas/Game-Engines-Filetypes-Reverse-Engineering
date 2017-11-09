@@ -34,10 +34,6 @@ Status legend:
 
 #### Gameloft Engine
 
-<style>
-.known { color: #FFBB00; }
-</style>
-
 <table>
   <tr>
     <th>Extension</th>
