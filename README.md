@@ -128,7 +128,7 @@ Keep in mind, that [010 Editor](https://www.sweetscape.com/010editor/) colors ar
 
 A well-structured storage is easy to search to maintain! That's why a certain logic should be used. In our case, we can have multiple game engines use same extension but those files be of different types.
 
-A top-level directory `engines` is used to contain game engines folders. Navigating to certain engine will show a list of folders with extensions supplied as folder names. In case a filetype can be of multiple versions, every version (prefixed with `v`) is contained as a separate folder. Inside extension folder (or its version) there must be `samples`, `scripts` and `templates` folders.
+A top-level directory `engines` is used to contain game engines folders. Navigating to certain engine will show a list of folders with extensions supplied as folder names. In case a filetype can be of multiple versions, every version (prefixed with `v`) is contained as a separate folder. Inside extension folder (or its version) there must be `scripts` and `templates` folders.
 
 
 Example structure:
