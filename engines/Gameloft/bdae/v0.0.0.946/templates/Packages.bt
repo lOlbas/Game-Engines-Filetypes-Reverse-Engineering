@@ -1,0 +1,76 @@
+struct BDAEPackage
+{
+    uint64 name <bgcolor=0x00FF00, name="Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(name) <name="Used String">;
+    uint some_count1 <bgcolor=0x0000FF, name="Some Count 1", comment=WarnIfNotOne>;
+    
+    uint models_count <bgcolor=0x00FF00, name="Models Count", comment=WarnIfNotOne>;
+    uint relative_models_offset <bgcolor=0x00FF00, name="Relative Models Offset">;
+    local uint models_offset = FTell() - sizeof(uint) + relative_models_offset;
+    
+    uint animations_count <bgcolor=0x00FF00, name="Animations Count", comment=WarnIfNotOne>;
+    uint relative_animations_offset <bgcolor=0x00FF00, name="Relative Animations Offset">;
+    local uint animations_offset = FTell() - sizeof(uint) + relative_animations_offset;
+    
+    uint unknown_count <bgcolor=0x0000FF, name="Unknown Count", comment=WarnIfNotOne>;
+    uint relative_unknown_offset <bgcolor=0x0000FF, name="Relative Unknown Offset">;
+    local uint unknown_offset = FTell() - sizeof(uint) + relative_unknown_offset;
+    
+    uint const_zero_1[7] <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+    
+    local int i;
+    
+    /* */
+    FSeek(models_offset);
+    for (i = 0; i < models_count; i++) {
+        uint64 model_relative_path <bgcolor=0x00FF00, name="BDAE Model File Relative Path", comment=StringAtOffset>;
+        BDAEUsedString used_string(model_relative_path) <name="Used String">;
+    }
+    
+    /* */
+    FSeek(animations_offset);
+    for (i = 0; i < animations_count; i++) {
+        uint64 animations_relative_path <bgcolor=0x00FF00, name="BDAE Animations File Relative Path", comment=StringAtOffset>;
+        BDAEUsedString used_string(animations_relative_path) <name="Used String">;
+    }
+    
+    uint64 unknown_name <bgcolor=0x0000FF, name="BDAE Unknown Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(unknown_name) <name="Used String">;
+    
+    uint unknown_values_count <bgcolor=0x00FFFF, name="Unknown Values Count">;
+    uint unknown_value_1 <bgcolor=0x0000FF, name="Unknown Value #1", comment=WarnIfNotFour>;
+    
+    for (i = 0; i < unknown_values_count; i++) {
+        uint const_zero_2_1 <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+        uint const_zero_2_2 <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+    }
+    
+    FSeek(unknown_offset);
+    uint64 name2 <bgcolor=0x00FF00, name="Package Name", comment=StringAtOffset>; // "default"
+    BDAEUsedString used_string(name2) <name="Used String">;
+    uint64 name3 <bgcolor=0x00FF00, name="Package Name", comment=StringAtOffset>; // ""
+    BDAEUsedString used_string(name3) <name="Used String">;
+    
+    uint some_count2  <bgcolor=0x0000FF, name="Some Count 2">;
+    uint unknown_value_2 <bgcolor=0x0000FF, name="Unknown Value #2", comment=WarnIfNotFour>;
+    
+    for (i = 0; i < some_count2; i++) {
+        uint64 animation_name_1 <bgcolor=0x00FF00, comment=StringAtOffset>;
+        BDAEUsedString used_string(animation_name_1) <name="Used String">;
+        uint64 animation_file <bgcolor=0x00FF00, comment=StringAtOffset>;
+        BDAEUsedString used_string(animation_file) <name="Used String">;
+        uint64 animation_name_2 <bgcolor=0x00FF00, comment=StringAtOffset>;
+        BDAEUsedString used_string(animation_name_2) <name="Used String">;
+    }
+};
+
+struct BDAEPackages
+{
+    if (file.model_infos.packages_info.count > 0) {
+        FSeek(file.model_infos.packages_info.offset);
+        local int i;
+        for (i = 0; i < file.model_infos.packages_info.count; i++) {
+            BDAEPackage package <name="Package Info">;
+        }
+    }
+};

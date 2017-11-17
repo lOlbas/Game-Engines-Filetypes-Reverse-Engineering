@@ -1,0 +1,12 @@
+struct BDAEStrings
+{
+    local uint fpos = header.strings_offset;
+    local int i = 0;
+    
+    while (fpos + 1 <= header.model_info_offset) {
+        FSeek(fpos);
+        HEADER_STRING strings <name="Header String">;
+        fpos = fpos + sizeof(strings[i].string_size) + StringLength(strings[i].string_size);
+        i++;
+    }
+};

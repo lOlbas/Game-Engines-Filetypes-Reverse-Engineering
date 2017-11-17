@@ -1,0 +1,7 @@
+string WarnIfNotZero(uint value) { if (value != 0) Printf("Value is not ZERO at 0x%X.\n", FTell()); return (value == 0) ? "" : "NOT ZERO!"; }
+string WarnIfNotOne(uint value) { if (value != 1) Printf("Value is not ONE at 0x%X.\n", FTell()); return (value == 1) ? "" : "NOT ONE!"; }
+string WarnIfNotTwo(uint value) { if (value != 2) Printf("Value is not TWO at 0x%X.\n", FTell()); return (value == 2) ? "" : "NOT TWO!"; }
+string WarnIfNotThree(uint value) { if (value != 3) Printf("Value is not THREE at 0x%X.\n", FTell()); return (value == 3) ? "" : "NOT THREE!"; }
+string WarnIfNotFour(uint value) { if (value != 4) Printf("Value is not FOUR at 0x%X.\n", FTell()); return (value == 4) ? "" : "NOT FOUR!"; }
+string WarnIfNotFive(uint value) { if (value != 5) Printf("Value is not FIVE at 0x%X.\n", FTell()); return (value == 5) ? "" : "NOT FIVE!"; }
+string WarnIfNotSix(uint value) { if (value != 6) Printf("Value is not SIX at 0x%X.\n", FTell()); return (value == 6) ? "" : "NOT SIX!"; }

@@ -1,0 +1,71 @@
+// TODO: invalid
+struct BDAEUnknown2
+{
+    uint const_zero_1 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint const_big_1 <bgcolor=0x0088FF, name="Flag?">; // WarnIfNot(16777216);
+    
+    uint offset_1 <bgcolor=0x00FFFF, name="Offset">;
+    uint const_zero_2 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint count_1 <bgcolor=0x0000FF, name="Count">;
+    uint const_zero_3[3] <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+};
+
+// TODO: invalid
+struct BDAEUnknowns2
+{
+    FSeek(file.model_infos.unknown_offset_2);
+    
+    uint some_count <bgcolor=0x00FF00>;
+    uint some_subcount <bgcolor=0x0000FF>; //WarnIfNotFour
+    uint const_zero_1 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint unknown_count_1 <bgcolor=0x0000FF, name="Unknown Count #1">; // Same as file.model_infos.unknown_count_1 (not)
+    // if (unknown_count_1 != file.model_infos.unknown_count_1) Warning("BDAEUnknowns1 unknown_count_1 do not equal!");
+    
+    local int i;
+    local int j;
+    for (i = 0; i < some_count; i++)
+    //for (j = 0; j < some_subcount; j++) 
+        BDAEUnknown2 unknown <name="Unknown">;
+    //
+    
+    uint const_zero_2 <bgcolor=0x0088FF, name="Zero", comment=WarnIfNotZero>;
+    uint unknown_count_2 <bgcolor=0x0000FF, name="Unknown Count #1">;
+};
+
+struct BDAEUnknown3_1
+{
+    uint64 combat_1 <bgcolor=0x0000FF, comment=StringAtOffset>;
+    uint timer_1 <bgcolor=0x0000FF>;
+    uint timer_2 <bgcolor=0x0000FF>;
+    uint timer_3 <bgcolor=0x0000FF>;
+    uint const_zero <bgcolor=0x0088FF, name="Const ZERO", comment=WarnIfNotZero>;
+};
+
+struct BDAEUnknowns3
+{
+    local int i;
+    local int j;
+    local int count;
+    local int offset;
+    if (file.model_infos.unknown_sections_count >= 1) {
+        if (file.model_infos.unknown_info_3[0].count > 0) {
+            FSeek(file.model_infos.unknown_info_3[0].offset);
+            for (i = 0; i < file.model_infos.unknown_info_3[0].count; i++) {
+                BDAEUnknown3_1 unknown_3_1 <name="AUTO Current Range Unknown">;
+            }
+        }
+    }
+    if (file.model_infos.unknown_sections_count >= 2) {
+        if (file.model_infos.unknown_info_3[1].count > 0) {
+            FSeek(file.model_infos.unknown_info_3[1].offset);
+            ushort some_count <bgcolor=0x00FFFF, name="Some Count">;
+            local uint taken_count = StringLength(some_count);
+            local uint index_count = file.model_infos.unknown_info_3[1].count - 1;
+            
+            for (i = 0; i < some_count; i++) {
+                ushort index <bgcolor=0x0088FF, name="Unknown Index?">;
+            }
+            ushort padding[(taken_count - index_count) / 2] <bgcolor=0x0088FF, name="Padding">;
+        }
+    }
+};

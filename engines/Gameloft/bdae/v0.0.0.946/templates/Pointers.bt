@@ -1,0 +1,8 @@
+struct BDAEPointers
+{
+    FSeek(header.data_pointers_offset);
+    
+    local int i;
+    for (i = 0; i < header.data_pointers_count; i++)
+        uint64 data_pointer <format=hex, bgcolor=0x0000FF, name="Data Pointer ">;
+};

@@ -1,0 +1,56 @@
+struct BDAEModelInfos
+{
+    FSeek(header.model_info_offset);
+    
+    /* BDAE Version Info */
+    uint bdae_version <format=hex, bgcolor=0x00FF00, name="BDAE Version String", comment=StringAtOffset>;
+    BDAEUsedString used_string(bdae_version) <name="Used String">;
+    
+    /* */
+    int const_zero_1[5] <bgcolor=0x0088FF, name="Const ZERO #1", comment=WarnIfNotZero>;
+    uint const_one_1 <bgcolor=0x0088FF, name="Const ONE #1", comment=WarnIfNotOne>;
+    uint const_zero_2 <bgcolor=0x0088FF, name="Const ZERO #2", comment=WarnIfNotZero>;
+    
+    /* */
+    uint unknown_count_1 <bgcolor=0x0000FF, name="Unknown Count #1">;
+    
+    /* */
+    uint const_zero_3[3] <bgcolor=0x0088FF, name="Const ZERO #2", comment=WarnIfNotZero>;
+    
+    /* Either 0x7FFFFFFF 0x80000000 or 0x00000000 and some count*/
+    int unknown_marker_1 <bgcolor=0x0000FF, name="Unknown Marker #1">;
+    int unknown_marker_2 <bgcolor=0x0000FF, name="Unknown Marker #2">;
+    uint const_zero_4[2] <bgcolor=0x0088FF, name="Const ZERO #3", comment=WarnIfNotZero>;
+    
+    /* Node Translations Info */
+    BDAE_INFO node_translations  <bgcolor=0x00FF00, name="Nodes Translations Info">;
+    
+    /* Audios Info */
+    uint relative_unknown_offset_1 <bgcolor=0x00FFFF, name="Unknown Offset #1">; // Not zero in animations.bdae
+    local uint unknown_offset_1 = FTell() - sizeof(uint) + relative_unknown_offset_1;
+    
+    /* Unknown Info 2 */
+    uint relative_unknown_offset_2 <bgcolor=0x00FFFF, name="Unknown Offset #2">; // Not zero if has node translations
+    local uint unknown_offset_2 = FTell() - sizeof(uint) + relative_unknown_offset_2;
+    
+    /* Unknown Info 3 */
+    uint unknown_sections_count <bgcolor=0x00FFFF, name="Unknown Sections Count", comment=WarnIfNotTwo>;
+    local int i;
+    for (i = 0; i < unknown_sections_count; i++) {
+        BDAE_INFO unknown_info_3 <name="Unknown Info 3">;
+    }
+    
+    BDAE_INFO packages_info <name="Packages Info">;
+    
+    /* Unknown Info 5*/
+    uint unknown5[10] <format=hex, bgcolor=0x0088FF, name="Const ZERO #5", comment=WarnIfNotZero>;
+    
+    BDAE_INFO textures_info <name="Textures Info">;
+    
+    /* */
+    uint const_zero_6[4] <bgcolor=0x0088FF, name="Const ZERO #5", comment=WarnIfNotZero>;
+    
+    BDAE_INFO materials <name="Materials Info">;
+    BDAE_INFO meshes <name="Meshes Info">;
+    BDAE_INFO unknown_123 <name="Unknown 123">;
+};

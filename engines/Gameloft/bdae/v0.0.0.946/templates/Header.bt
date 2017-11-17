@@ -1,0 +1,16 @@
+struct BDAEHeader
+{
+    FSeek(0);
+    
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    short bom <bgcolor=0x00FF00, name="Byte Order Mark">;
+    short bom_padding <bgcolor=0x00FF00, name="Byte Order Mark Padding">;
+    uint header_size <format=hex, bgcolor=0x00FF00, name="Header Size">;
+    uint bdae_size <format=hex, bgcolor=0x00FF00, name="File Size">;
+    uint64 data_pointers_count <bgcolor=0x00FF00, name="Data Pointers Count">;
+    uint64 data_pointers_offset <format=hex, bgcolor=0x00FF00, name="Data Pointers Offset">;
+    uint64 strings_offset <format=hex, bgcolor=0x00FF00, name="Strings Offset">;
+    uint64 model_info_offset <format=hex, bgcolor=0x00FFFF, name="Model Info Offset">;
+    uint64 offset_2 <format=hex, bgcolor=0x00FFFF, name="After Previous Section Offset">;
+    uint64 unknown <format=hex, bgcolor=0x0000FF, name="Unknown">;
+};

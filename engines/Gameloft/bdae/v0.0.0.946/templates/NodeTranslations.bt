@@ -1,0 +1,66 @@
+struct BDAENodeTranslationNodes
+{
+    uint node_name <format=hex, bgcolor=0x00FF00, name="Node Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(node_name) <name="Used String">;
+    uint const_zero_1 <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+    uint const_one_1 <bgcolor=0x0000FF, comment=WarnIfNotOne>; // Can be 3
+    uint const_zero_2 <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+    int const_big_1 <bgcolor=0x0000FF, comment="Always 0xFFFFFFFF?">;
+    int const_big_2 <bgcolor=0x0000FF, comment="Always 0xFFFFFFFF?">;
+};
+
+struct BDAENodeProperties
+{
+     uint unknown_1 <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+     uint unknown_2 <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+     uint unknown_3 <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+     uint index_1 <bgcolor=0x00FFFF, comment="Index 1">;
+     uint unknown_4 <bgcolor=0x0000FF, comment=WarnIfNotSix>; 
+     uint unknown_5 <bgcolor=0x0000FF, comment=WarnIfNotThree>;
+     uint index_2 <bgcolor=0x00FFFF, comment="Index 2">;
+     uint flags <bgcolor=0x0000FF, comment="Flags">;
+};
+
+struct BDAENodeTranslation
+{
+    uint name <format=hex, bgcolor=0x00FF00, name="Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(name) <name="Used String">;
+    uint reserved <bgcolor=0x0088FF, comment=WarnIfNotZero>;
+    
+    uint properties_count <bgcolor=0x00FF00, name="Node Properties Count", comment=WarnIfNotOne>;
+    uint relative_properties_offset <bgcolor=0x00FF00, name="Node Properties Offset">;
+    local uint properties_offset = FTell() - sizeof(uint) + relative_properties_offset;
+    
+    uint nodes_count <bgcolor=0x00FF00, name="Nodes Count", comment=WarnIfNotOne>;
+    uint relative_nodes_info_offset <bgcolor=0x00FF00, name="Nodes Info Offset">;
+    local uint nodes_info_offset = FTell() - sizeof(uint) + relative_nodes_info_offset;
+    
+    uint padding[4] <bgcolor=0x0088FF, name="Padding", comment=WarnIfNotZero>;
+    
+    /* Properties */
+    local uint fpos = FTell();
+    
+    FSeek(properties_offset);
+    local int i;
+    for (i = 0; i < properties_count; i++) {
+        BDAENodeProperties node_properties <name="Node Properties">;
+    }
+    
+    /* Nodes */
+    FSeek(nodes_info_offset);
+    for (i = 0; i < properties_count; i++) {
+        BDAENodeTranslationNodes nodes <name="Nodes">;
+    }
+};
+
+struct BDAENodeTranslations
+{
+    local uint fpos = file.model_infos.node_translations.offset;
+    local int i;
+    
+    for (i = 0; i < model_infos.node_translations.count; i++) {
+        FSeek(fpos);
+        BDAENodeTranslation node <name="Node Translation">;
+        fpos = fpos + 40;
+    }
+};

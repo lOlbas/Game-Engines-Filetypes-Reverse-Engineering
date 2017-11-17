@@ -1,0 +1,51 @@
+
+struct BDAEMaterialPropertyValue
+{
+    
+};
+
+struct BDAEMaterialPropertyType17
+{
+    uint const_one <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+    uint const_zero <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+    short unknown[12] <bgcolor=0x0000FF>;
+};
+
+struct BDAEMaterialProperty
+{
+    uint64 property_name_1 <bgcolor=0x00FF00, name="Property Name 1", comment=StringAtOffset>;
+    BDAEUsedString used_string(property_name_1) <name="Used String">;
+    uint64 property_name_2 <bgcolor=0x00FF00, name="Property Name 2", comment=StringAtOffset>;
+    BDAEUsedString used_string(property_name_2) <name="Used String">;
+    uint property_type <bgcolor=0x00FF00, name="Property Type">;
+    uint unknown_count <bgcolor=0x00FFFF, name="Properties Count?", comment=WarnIfNotOne>;
+    uint relative_property_offset <bgcolor=0x00FFFF>;
+    local uint property_offset = FTell() - sizeof(uint) + relative_property_offset;
+    uint relative_value_offset <bgcolor=0x00FFFF>;
+    
+    local uint64 fpos = FTell();
+    
+    FSeek(property_offset);
+    if (property_type == 17) {
+        BDAEMaterialPropertyType17 values <name="Property Values">;
+    }
+    
+    FSeek(fpos);
+};
+
+struct BDAEMaterialProperties
+{
+    local int j;
+    for (j = 0; j < materials.material[materials_prop.i].properties_count; j++) {
+        BDAEMaterialProperty material_prop <name="Material Property">;
+    }
+};
+
+struct BDAEMaterialsProps
+{
+    local int i;
+    for (i = 0; i < model_infos.materials.count; i++) {
+        FSeek(materials.material[i].properties_offset);
+        BDAEMaterialProperties material_prop <name="Material Properties">;
+    }
+};

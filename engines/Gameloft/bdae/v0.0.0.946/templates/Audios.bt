@@ -1,0 +1,55 @@
+struct BDAEAudioSFXData
+{
+    local int i;
+    for (i = 0; i < file.audio_sfx.section_1_count; i++) {
+        ushort section_1_values <bgcolor=0x0000FF, name="Section 1 Value">;
+    }
+};
+
+struct BDAEAudiosData
+{
+    local int i;
+    for (i = 0; i < file.audio_sfx.section_2_count; i++) {
+        BDAE_INFO audio_data <name="Audio SFX Data">;
+    }
+};
+
+struct BDAEAudios
+{
+    local int i;
+    local int j;
+    for (i = 0; i < file.audio_sfx.section_2_count; i++) {
+        for (j = 0; j < file.audio_sfx.audios_data.audio_data[i].count; j++) {
+            uint64 filename <format=hex, bgcolor=0x00FF00, name="File Name", comment=StringAtOffset>;
+            BDAEUsedString used_string(filename) <name="Used String">;
+        }
+    }
+};
+
+struct BDAEAudioSFX
+{
+    if (file.model_infos.relative_unknown_offset_1 > 0) {
+        FSeek(file.model_infos.unknown_offset_1);
+        
+        uint some_count <bgcolor=0x0000FF, comment=WarnIfNotThree>;
+        uint some_subcount <bgcolor=0x0000FF, comment=WarnIfNotOne>;
+        
+        uint section_1_count <bgcolor=0x00FF00>;
+        uint relative_section_1_offset <bgcolor=0x00FF00>;
+        local uint section_1_offset = FTell() - sizeof(uint) + relative_section_1_offset;
+        
+        uint section_2_count <bgcolor=0x00FF00>;
+        uint relative_section_2_offset <bgcolor=0x00FF00>;
+        local uint section_2_offset = FTell() - sizeof(uint) + relative_section_2_offset;
+        
+        FSeek(section_1_offset);
+        BDAEAudioSFXData audio_unknown_1 <name="Audio Unknown 1">;
+        
+        uint zero_1 <bgcolor=0x0088FF>;
+        
+        FSeek(section_2_offset);
+        BDAEAudiosData audios_data <name="Audios Data">;
+        
+        BDAEAudios audios <name="Audios">;
+    }
+};

@@ -1,0 +1,28 @@
+struct BDAEMaterial
+{
+    uint64 name <bgcolor=0x00FF00, name="Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(name) <name="Used String">;
+    uint64 file <bgcolor=0x00FF00, name="File", comment=StringAtOffset>;
+    BDAEUsedString used_string(file) <name="Used String">;
+    uint64 shader_name <bgcolor=0x00FF00, name="Shader Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(shader_name) <name="Used String">;
+    uint unknown_1[2] <bgcolor=0x0088FF, name="Unknown 1">;
+    uint properties_count <bgcolor=0x00FF00, name="Properties Count">;
+    uint realtive_properties_offset <format=hex, bgcolor=0x00FF00, name="Properties Offset">;
+    local uint64 properties_offset = FTell() - sizeof(uint) + realtive_properties_offset;
+    uint unknown_2[4] <bgcolor=0x0088FF, name="Unknown 2", comment=WarnIfNotZero>;
+    int unknown_3 <bgcolor=0x0088FF, name="Unknown 3 (0xFFFFFFFF)">; // WarnIfNot(-1)
+    uint unknown_4 <bgcolor=0x0088FF, name="Unknown 2 (0x00000080">; // WarnIfNot(0x80)
+    uint unknown_5[4] <bgcolor=0x0088FF, name="Unknown 2", comment=WarnIfNotZero>;
+};
+
+struct BDAEMaterials
+{
+    if (file.model_infos.materials.count > 0) {
+        FSeek(file.model_infos.materials.offset);
+        local int i;
+        for (i = 0; i < file.model_infos.materials.count; i++) {
+            BDAEMaterial material <name="Material">;
+        }
+    }
+};

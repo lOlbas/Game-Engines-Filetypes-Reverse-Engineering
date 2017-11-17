@@ -1,0 +1,39 @@
+struct BDAEMeshData
+{
+    uint static <bgcolor=0x0088FF>;
+    int static <bgcolor=0x0088FF>;
+    uint64 offset <bgcolor=0x00FFFF>;
+    uint64 length <bgcolor=0x00FFFF>;
+    uint64 padding <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+};
+
+struct BDAEMeshesData
+{
+    local int i;
+    for (i = 0; i < model_infos.meshes.count; i++) {
+        FSeek(meshes.mesh[i].data_offset);
+        BDAEMeshData mesh_data <name="Mesh Data">;
+    }
+};
+
+struct BDAEMesh
+{
+    uint64 name <bgcolor=0x00FF00, name="Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(name) <name="Used String">;
+    uint64 friendly_name <bgcolor=0x00FF00, name="Friendly Name", comment=StringAtOffset>;
+    BDAEUsedString used_string(friendly_name) <name="Used String">;
+    uint reserved <bgcolor=0x0088FF, name="Reserved", comment=WarnIfNotZero>;
+    uint relative_data_offset <format=hex, bgcolor=0x00FF00, name="Data Offset">;
+    local uint data_offset = FTell() - sizeof(uint) + relative_data_offset;
+};
+
+struct BDAEMeshes
+{
+    if (file.model_infos.meshes.count > 0) {
+        FSeek(file.model_infos.meshes.offset);
+        local int i;
+        for (i = 0; i < file.model_infos.meshes.count; i++) {
+            BDAEMesh mesh <name="Mesh">;
+        }
+    }
+};
