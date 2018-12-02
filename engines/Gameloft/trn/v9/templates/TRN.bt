@@ -42,7 +42,7 @@ struct TRNHeader
 
 struct TRNChunk
 {
-    uint flag <bgcolor=0x00FFFF, name="Flag">;
+    uint flag <bgcolor=0xFFBB00, name="Flag">;
     short water_level <bgcolor=0x00FF00, name="Water Level">;
     short texture_index[3] <bgcolor=0x00FF00, name="Texture Index">;
 };
@@ -117,4 +117,4 @@ struct TRNFile
     TRNNormals normals <name="Vertex Normals">;
     byte padding <bgcolor=0xFFBB00, name="Padding">;
     TRNStrings strings <name="Strings">;
-} file <name="TRN">;
+} file <name="TRN v9">;

@@ -1,0 +1,164 @@
+//------------------------------------------------
+//--- 010 Editor v7.0 Binary Template
+//
+//      File: ITM.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: ITM Format
+//  Category: 
+// File Mask: *.itm
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+local uint FORMAT_VERSION;
+
+enum ENTITY_TYPE {
+    ENTITY				,//= 0x01 << 0,
+    ENTITY_GROUP		,//= 0x01 << 1,
+    ENTITY_3D			,//= 0x01 << 2,
+    ENTITY_CAMERA		,//= 0x01 << 3,
+    ENTITY_GEOMETRY		,//= 0x01 << 4,
+    ENTITY_RIVER		,//= 0x01 << 5,
+    ENTITY_TERRAIN		,//= 0x01 << 6,
+    ENTITY_SKYBOX		,//= 0x01 << 7,
+    ENTITY_EFFECT		,//= 0x01 << 8,
+    
+    ENTITY_CREATURE		,//= 0x01 << 9,
+    ENTITY_TRIGGER		,//= 0x01 << 10,
+    ENTITY_QUESTZONE	,//= 0x01 << 11,
+    ENTITY_STATICOBJECT	,//= 0x01 << 12,
+    ENTITY_WAYPOINT		,//= 0x01 << 13,
+    ENTITY_GRAVEYARD	,
+    
+    ENTITY_HOUSE,
+    
+    ENTITY_ALL			= 0xFFFFFFFF,
+};
+
+string EntityType(uint type) {
+    switch (type) {
+        case ENTITY: return "Entity";
+        case ENTITY_GROUP: return "Group";
+        case ENTITY_3D: return "3D";
+        case ENTITY_CAMERA: return "Camera";
+        case ENTITY_GEOMETRY: return "Geometry";
+        case ENTITY_RIVER: return "River";
+        case ENTITY_TERRAIN: return "Terrain";
+        case ENTITY_SKYBOX: return "Skybox";
+        case ENTITY_EFFECT: return "Effect";
+        
+        case ENTITY_CREATURE: return "Creature";
+        case ENTITY_TRIGGER: return "Trigger";
+        case ENTITY_QUESTZONE: return "Quest Zone";
+        case ENTITY_STATICOBJECT: return "Static Object";
+        case ENTITY_WAYPOINT: return "Waypoint";
+        case ENTITY_GRAVEYARD: return "Graveyard";
+        
+        case ENTITY_HOUSE: return "House";
+        
+        case ENTITY_ALL: return "All";
+        
+        default: return "Unknown entity type";
+    }
+};
+
+struct Vector3
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+    float Z <bgcolor=0x00FF00, name="Z">;
+};
+
+struct Quaternion
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+    float Z <bgcolor=0x00FF00, name="Z">;
+    float W <bgcolor=0x00FF00, name="W">;
+};
+
+string WarnIfNotMinusOne(uint value) { if (value != -1) Printf("Value is not MINUS ONE at 0x%X.\n", FTell()); return (value == -1) ? "" : "NOT MINUS ONE!"; }
+string WarnIfNotZero(uint value) { if (value != 0) Printf("Value is not ZERO at 0x%X.\n", FTell()); return (value == 0) ? "" : "NOT ZERO!"; }
+string WarnIfNotOne(uint value) { if (value != 1) Printf("Value is not ONE at 0x%X.\n", FTell()); return (value == 1) ? "" : "NOT ONE!"; }
+
+struct ITMHeader
+{
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    Assert(signature == "AITM", "Wrong file format!");
+    uint format_version <bgcolor=0x00FF00, name="Format Version">;
+    FORMAT_VERSION = format_version;
+    int grid_x <bgcolor=0x00FF00, name="Grid X">;
+    int grid_z <bgcolor=0x00FF00, name="Grid Z">;
+    uint entities_count <bgcolor=0x00FF00, name="Entities Count">;
+    uint file_count <bgcolor=0x00FF00, name="File Count">;
+};
+
+struct ITMEntityV3
+{
+    uint type <bgcolor=0x00FF00, name="Type", comment=EntityType>;
+    uint id <bgcolor=0x00FF00, name="ID">;
+    uint parent_id <bgcolor=0x00FF00, name="Parent ID">;
+    int filename_index <bgcolor=0x00FF00, name="Model Filename Index">;
+    Vector3 relative_position;
+    Quaternion rotation;
+    Vector3 scale;
+};
+
+struct ITMEntityV4
+{
+    ITMEntityV3 entity <name="Entity">;
+    int unknown_1 <bgcolor=0x0000FF, name="Unknown 1", comment=WarnIfNotMinusOne>;
+    int unknown_2 <bgcolor=0x0000FF, name="Unknown 2", comment=WarnIfNotMinusOne>;
+};
+
+struct ITMEntityV5
+{
+    ITMEntityV4 entity <name="Entity">;
+    int unknown_object_value_4 <bgcolor=0x0000FF, name="Unknown Object Value 4", comment=WarnIfNotOne>;
+    int unknown_object_value_5 <bgcolor=0x0000FF, name="Unknown Object Value 5", comment=WarnIfNotZero>;
+    int unknown_object_value_6 <bgcolor=0x0000FF, name="Unknown Object Value 6", comment=WarnIfNotZero>;
+};
+
+struct ITMEntities
+{
+    local uint i;
+    for (i = 0; i < header.entities_count; i++) {
+        switch (FORMAT_VERSION) {
+            case 3: ITMEntityV3 entity <name="Entity">; break;
+            case 4: ITMEntityV4 entity <name="Entity">; break;
+            case 5: ITMEntityV5 entity <name="Entity">; break;
+            default: Assert(false, "Unsuported format version!");
+        }
+    }
+};
+
+struct ITMString
+{
+    char model_path[strings.lengths[strings.i]] <bgcolor=0x00FF00>;
+};
+
+struct ITMStrings
+{
+    uint file_count <bgcolor=0x00FF00, name="File Count">;
+    local uint i;
+    local uint pos_prev = 0;
+    local uint lengths[file_count];
+    
+    for (i = 0; i < file_count; i++) {
+        uint offset <bgcolor=0x00FF00, name="String Length">;
+        lengths[i] = offset - pos_prev;
+        pos_prev = offset;
+    }
+    
+    for (i = 0; i < file_count; i++) {
+        ITMString model_path <name="Model Path">;
+    }
+};
+
+struct ITMFile
+{
+    ITMHeader header <name="Header">;
+    ITMEntities entities <name="Entities">;
+    ITMStrings strings <name="Strings">;
+} file <name="ITM">;

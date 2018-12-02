@@ -4,7 +4,6 @@ struct BDAEModelInfos
     
     /* BDAE Version Info */
     uint bdae_version <format=hex, bgcolor=0x00FF00, name="BDAE Version String", comment=StringAtOffset>;
-    BDAEUsedString used_string(bdae_version) <name="Used String">;
     
     /* */
     int const_zero_1[5] <bgcolor=0x0088FF, name="Const ZERO #1", comment=WarnIfNotZero>;
@@ -53,4 +52,7 @@ struct BDAEModelInfos
     BDAE_INFO materials <name="Materials Info">;
     BDAE_INFO meshes <name="Meshes Info">;
     BDAE_INFO unknown_123 <name="Unknown 123">;
+
+    /* Strings Used */
+    BDAEUsedString used_string(bdae_version) <name="Used String">;
 };

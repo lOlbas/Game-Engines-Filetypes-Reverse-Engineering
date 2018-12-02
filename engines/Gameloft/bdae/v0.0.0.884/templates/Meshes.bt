@@ -1,0 +1,81 @@
+struct BDAEMeshData
+{
+    uint static <bgcolor=0x0088FF>;
+    int static <bgcolor=0x0088FF>;
+    uint64 offset <bgcolor=0x00FFFF>;
+    uint64 length <bgcolor=0x00FFFF>;
+    uint64 padding <bgcolor=0x0000FF, comment=WarnIfNotZero>;
+};
+
+struct BDAEMeshesData
+{
+    local int i;
+    for (i = 0; i < model_infos.meshes.count; i++) {
+        FSeek(meshes.mesh[i].data_offset);
+        BDAEMeshData mesh_data <name="Mesh Data">;
+    }
+};
+
+struct BDAEMesh (uint offset)
+{
+    if (offset > 0) {
+        local uint fpos = FTell();
+        local uint i, j;
+        
+        FSeek(offset);
+        uint zero <bgcolor=0x0000FF>;
+        byte submesh_count <bgcolor=0x00FF00, name="Submesh Count">;
+        // Followed by 3 unknown byte values
+        byte unknown[2];
+        byte vb_count <name="Vertex Block Count", comment="Unconfirmed">;
+        uint mesh_header_offset <bgcolor=0x00FF00, name="Mesh Header Offset", comment="Relative to file starting position">;
+        uint mesh_header_size <bgcolor=0x00FF00, name="Mesh Header Size">;
+        
+        FSeek(mesh_header_offset);
+        for (i = 0; i < submesh_count; i++) {
+            uint IBDataOffset <bgcolor=0x00FFFF, name="IBDataOffset (???)">;
+        }
+        
+        uint vb_count_2 <bgcolor=0x00FFFF, name="Vertex Block Count 2 (unconfirmed)", comment=WarnIfNotOne>;
+        uint vertex_count <bgcolor=0x00FF00, name="Vertex Count">;
+        BDAE_INFO vertex_prop_strides <name="Strides (???)">;
+        BDAE_INFO vertex_prop_offsets <name="Prop Offsets (???)">;
+        BDAE_INFO vertex_prop_comp_formats <name="Vertex Prop Comp Formats (???)">;
+        BDAE_INFO vertex_prop_dimensions <name="Vertex Prop Dimensions (???)">;
+        BDAE_INFO vertex_prop_unknown <name="Vertex Prop Unknown">;
+        
+        FSeek(FTell() + 8); // Flags?
+        
+        uint vb_offset <bgcolor=0x00FF00, name="Vetex Block Offset">;
+        uint vb_size <bgcolor=0x00FF00, name="Vertex Block Size">;
+        
+        FSeek(FTell() + 8);
+        
+        uint submesh_count <bgcolor=0x00FFFF>;
+        uint IBdataTableOffset <bgcolor=0x00FF00>;
+        
+        BOUNDING_BOX bb;
+        
+        FSeek(vertex_prop_strides.offset);
+        for (i = 0; i < vertex_prop_strides.count; i++) {
+            uint vPropStrides <bgcolor=0x00FFFF>;
+        }
+        
+        FSeek(vertex_prop_offsets.offset);
+        for (i = 0; i < vertex_prop_offsets.count; i++) {
+            uint vPropOffsets <bgcolor=0x00FFFF>;
+        }
+        
+        FSeek(vertex_prop_comp_formats.offset);
+        for (i = 0; i < vertex_prop_comp_formats.count; i++) {
+            uint vPropCompFormats <bgcolor=0x00FFFF>; // 1:byte, 6:float
+        }
+        
+        FSeek(vertex_prop_dimensions.offset);
+        for (i = 0; i < vertex_prop_dimensions.count; i++) {
+            uint vPropDimensions <bgcolor=0x00FFFF>;
+        }
+        
+        FSeek(fpos);
+    }
+};

@@ -1,0 +1,15 @@
+uint StringLength(uint size) {
+    return (size == 0) ? 0 : ((int)(size / 4) + 1) * 4;
+}
+
+string StringAtOffset(uint offset)
+{
+    uint fpos = FTell();
+    FSeek(offset);
+    uint temp <bgcolor=0x00FF00>;
+    string s = ReadString(offset);
+    
+    FSeek(fpos);
+    
+    return s;
+}

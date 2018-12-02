@@ -1,0 +1,76 @@
+typedef enum <WORD>
+{
+    UNKNOWN     = 0x0000FF,
+    KNOWN       = 0x00FF00,
+    UNNAMED     = 0x00FFFF,
+    RESERVED    = 0xFFBB00,
+    TODO        = 0xFFFF00,
+    CONST       = 0x0088FF
+} LEVELS;
+
+struct BDAE_INFO
+{
+    uint count <bgcolor=0x00FF00, name="Count">;
+    uint relative_offset <format=hex, bgcolor=0x00FF00, name="Data Offset">;
+    local uint offset = FTell() - sizeof(uint) + relative_offset;
+};
+
+struct XY
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+};
+
+struct XYZ
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+    float Z <bgcolor=0x00FF00, name="Z">;
+};
+
+struct XYZW
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+    float Z <bgcolor=0x00FF00, name="Z">;
+    float W <bgcolor=0x00FF00, name="W">;
+};
+
+struct BOUNDING_BOX
+{
+    XYZ top_left;
+    XYZ bottom_right;
+};
+
+struct FVF32
+{
+    XYZ coordinates <name="Coordinates">;
+    XYZ normals <name="Normals">;
+    XY uvs <name="UVs">;
+};
+
+struct FVF44
+{
+//  UVs may not be real UVs since they keep getting negative values
+    XYZ coordinates <name="Coordinates">;
+    XYZ normals <name="Normals">;
+    XY uvs <name="UVs">;
+    float unknown[2] <bgcolor=0x0000FF>;
+    int unknown_i <bgcolor=0x0000FF>;
+};
+
+struct FVF56
+{
+    XYZ coordinates <name="Coordinates">;
+    XYZ normals <name="Normals">;
+    XY uvs <name="UVs">;
+    float unknown[6] <bgcolor=0x0000FF>;
+};
+
+struct FVF60
+{
+    XYZ coordinates <name="Coordinates">;
+    XYZ normals <name="Normals">;
+    XY uvs <name="UVs">;
+    float unknown[7]  <bgcolor=0x0000FF>;
+};

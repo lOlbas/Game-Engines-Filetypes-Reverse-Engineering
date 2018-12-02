@@ -1,0 +1,35 @@
+//------------------------------------------------
+//--- 010 Editor v7.0.2 Binary Template
+//
+//      File: BDAE.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: BDAE Format v0.0.0.884
+//  Category: 
+// File Mask: *.bdae
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+LittleEndian();
+
+#include "Debug.bt"
+#include "Functions.bt"
+#include "Types.bt"
+
+//--------------------BDAE------------------------
+
+#include "Header.bt"
+#include "Pointers.bt"
+#include "Strings.bt"
+#include "Meshes.bt"
+
+#include "ModelInfos.bt"
+
+struct BDAEFile
+{
+    BDAEHeader header <name="Header">;
+    BDAEPointers pointers <name="Data Pointers">;
+    // BDAEStrings strings <name="Strings">;
+    BDAEModelInfos model_infos <name="Model Infos">;
+} file <name="BDAE">;

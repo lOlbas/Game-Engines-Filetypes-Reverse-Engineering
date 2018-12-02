@@ -1,0 +1,128 @@
+struct BDAEModelInfos
+{
+    local int i, j;
+    
+    FSeek(header.model_info_offset);
+    
+    /* BDAE Version Info */
+    uint bdae_version <format=hex, bgcolor=0x00FF00, name="BDAE Version String", comment=StringAtOffset>;
+    
+    FSeek(FTell() + 104);
+    
+    BDAE_INFO textures <name="Textures Info">;
+    
+    FSeek(FTell() + 8);
+    
+    BDAE_INFO materials <name="Materials Info">;
+    BDAE_INFO meshes <name="Meshes Info">;
+    BDAE_INFO mesh_morphers <name="Mesh Morphers Info">;
+    
+    FSeek(FTell() + 24);
+    
+    BDAE_INFO node_collections <name="Node Collections Info">;
+    
+    FSeek(FTell() + 24);
+    
+    /* Textures */
+    FSeek(textures.offset);
+    for (i = 0; i < textures.count; i++) {
+        uint texture1 <format=hex, bgcolor=0x00FF00, name="Texture String", comment=StringAtOffset>;
+        uint texture_name <format=hex, bgcolor=0x00FF00, name="Texture Name", comment=StringAtOffset>;
+        uint texture2 <format=hex, bgcolor=0x00FF00, name="Texture String", comment=StringAtOffset>;
+        
+        BDAEUsedString used_string(texture1) <name="Used String">;
+        BDAEUsedString used_string(texture_name) <name="Used String">;
+        BDAEUsedString used_string(texture2) <name="Used String">;
+    }
+    
+    /* Materials */
+    for (i = 0; i < materials.count; i++) {
+        FSeek(materials.offset + 40 * i);
+        uint material_name1 <format=hex, bgcolor=0x00FF00, name="Material Name", comment=StringAtOffset>;
+        uint material_name2 <format=hex, bgcolor=0x00FF00, name="Material Name", comment=StringAtOffset>;
+        uint material_file <format=hex, bgcolor=0x00FF00, name="Material File", comment=StringAtOffset>;
+        uint shader_name <format=hex, bgcolor=0x00FF00, name="Shader Name", comment=StringAtOffset>;
+        
+        BDAE_INFO properties <name="Properties Info">;
+        
+        uint somelong1;
+        uint somelong2;
+        uint somelong3;
+        uint somelong4;
+        
+        for (j = 0; j < properties.count; j++) {
+            FSeek(properties.offset + 24 * j);
+            uint property_name <format=hex, bgcolor=0x00FF00, name="Property Name", comment=StringAtOffset>;
+            uint property_name2 <format=hex, bgcolor=0x00FF00, name="Property Name", comment=StringAtOffset>;
+            uint property_type <bgcolor=0x00FF00>;
+            
+            uint elements_count <bgcolor=0x0000FF>;
+            uint property_offset <bgcolor=0x00FF00, name="Property Offset">;
+            uint value_offset <bgcolor=0x00FF00, name="Value Offset">;
+            
+            switch (property_type) {
+                case 0: int property_value <bgcolor=0x00FFFF>; break;
+                case 4: float property_value <bgcolor=0x00FFFF>; break;
+                case 5: XY property_value; break;
+                case 6: XYZ property_value; break;
+                case 7: XYZW property_value; break;
+                case 13:
+                    uint texture_index_offset <bgcolor=0x00FF00>;
+                    FSeek(FTell() + texture_index_offset - 4);
+                    uint texture_index <bgcolor=0x00FF00>; // SEEMS WRONG
+                break;
+                case 22:
+                    uint long1;
+                    uint property_value <format=hex, bgcolor=0x00FF00, name="Property Value", comment=StringAtOffset>;
+                    BDAEUsedString used_string(property_value) <name="Used String">;
+                break;
+                default: break; // Unknown material property type
+            }
+            /*
+            switch (property_name) {
+                case "DiffSampler": diffuseMap = property_value; break;
+                case "DiffuseMapSampler": diffuseMap = property_value; break;
+                case "NormalSampler": bumpMap = Normal_Bump normal_map:property_value; break;
+                case "carDiffuseColor": diffuseColor = color (propValue.x*255) (propValue.y*255) (propValue.z*255) (propValue.w*255); break;
+                case "CarSpecularColor": specularColor = color (propValue.x*255) (propValue.y*255) (propValue.z*255) (propValue.w*255); break;
+                case "Glossiness": glossiness = propValue;
+            }
+            */
+            BDAEUsedString used_string(property_name) <name="Used String">;
+            BDAEUsedString used_string(property_name2) <name="Used String">;
+        }
+        
+        BDAEUsedString used_string(material_name1) <name="Used String">;
+        BDAEUsedString used_string(material_name2) <name="Used String">;
+        BDAEUsedString used_string(material_file) <name="Used String">;
+        BDAEUsedString used_string(shader_name) <name="Used String">;
+    }
+    
+    /* Meshes */
+    FSeek(meshes.offset);
+    for (i = 0; i < meshes.count; i++) {
+        uint mesh_name <format=hex, bgcolor=0x00FF00, name="Mesh Name", comment=StringAtOffset>;
+        uint friendly_name <format=hex, bgcolor=0x00FF00, name="Mesh Friendly Name", comment=StringAtOffset>;
+        BDAE_INFO mesh_info <name="Mesh Info">;
+        BDAEMesh mesh(mesh_info.offset) <name=mesh_name>;
+        
+        BDAEUsedString used_string(mesh_name) <name="Used String">;
+        BDAEUsedString used_string(friendly_name) <name="Used String">;
+    }
+    
+    /* Nodes
+    FSeek(node_collections.offset);
+    for (i = 0; i < node_collections.count; i++) {
+        uint node_name <format=hex, bgcolor=0x00FF00, name="Node Name", comment=StringAtOffset>;
+        uint friendly_name <format=hex, bgcolor=0x00FF00, name="Node Friendly Name", comment=StringAtOffset>;
+        
+        uint somelong;
+        XYZ position;
+        
+        BDAEUsedString used_string(node_name) <name="Used String">;
+        BDAEUsedString used_string(friendly_name) <name="Used String">;
+    }*/
+    
+    /* Strings Used */
+    BDAEUsedString used_string(bdae_version) <name="Used String">;
+};

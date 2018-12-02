@@ -1,0 +1,34 @@
+struct BDAEString
+{
+    uint string_size <bgcolor=0x00FF00, name="String Length">;
+    if (string_size > 0)
+        char string_value[StringLength(string_size)] <bgcolor=0x00FF00, name="String Value">;
+};
+
+struct BDAEStrings
+{
+    local uint fpos = header.strings_offset;
+    local int i = 0;
+    
+    while (fpos + 1 <= header.model_info_offset) {
+        FSeek(fpos);
+        BDAEString strings <name="Header String">;
+        fpos = fpos + sizeof(strings[i].string_size) + StringLength(strings[i].string_size);
+        i++;
+    }
+};
+
+struct BDAEUsedString (uint offset)
+{
+    if (offset > 0) {
+        local uint fpos = FTell();
+        
+        FSeek(offset - 4);
+        
+        uint string_size <bgcolor=0x00FF00, name="String Length">;
+        if (string_size > 0)
+            char string_value[StringLength(string_size)] <bgcolor=0x00FF00, name="String Value">;
+        
+        FSeek(fpos);
+    }
+};

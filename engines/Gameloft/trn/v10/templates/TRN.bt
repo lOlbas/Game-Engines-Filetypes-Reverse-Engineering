@@ -11,39 +11,59 @@
 //   History: 
 //------------------------------------------------
 
+local uint FORMAT_VERSION = 10;
+
 local uint dimension = 64;
 local uint vertex_line = dimension + 1;
+
+string ConvertColor(short color) {
+    int color_i = ((color & 0xF800) << 8) | ((color & 0x07E0) << 5) | ((color & 0x001F) << 3);
+    int red = (color_i & 0x00FF0000) >> 16;
+    int green = (color_i & 0x0000FF00) >> 8;
+    int blue = (color_i & 0x000000FF);
+    string color_s;
+    SPrintf(color_s, "RGB(%d, %d, %d)", red, green, blue);
+    return color_s;
+}
+
+string Normalize(byte normal) {
+    string normal_s;
+    SPrintf(normal_s, "%f", (float)normal / 127);
+    return normal_s;
+}
 
 struct TRNHeader
 {
     uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
-    uint format_version <bgcolor=0x00FF00, name="Format Version">;
-    int chunk_x_position <bgcolor=0x00FF00, name="Chunk Position By X Axis">;
-    int chunk_z_position <bgcolor=0x00FF00, name="Chunk Position By Z Axis">;
+    uint version <bgcolor=0x00FF00, name="Format Version">;
+    Assert(version == FORMAT_VERSION, "Wrong format version!");
+    int grid_x <bgcolor=0x00FF00, name="Grid X">;
+    int grid_y <bgcolor=0x00FF00, name="Grid Y">;
+    uint64 unknown <bgcolor=0x0000FF, name="Unknown", comment=WarnIfNotOne>;
 };
 
-struct TRNSubSection1
+struct TRNChunk
 {
     ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
     ushort unknown_value <bgcolor=0x0055CC, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0055FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0099FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    hfloat unknown_value <bgcolor=0x0055FF, name="Unknown Value">;
+    short unknown_value <bgcolor=0x0099FF, name="Unknown Value">;
+    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
     short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
     hfloat unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
     ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    hfloat unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
+    hfloat unknown_value <bgcolor=0x00FFFF, name="Water Level">;
 };
 
-struct TRNSection1
+struct TRNChunks
 {
-    uint64 marker_1 <bgcolor=0xFFBB00, name="Unknown Count 1", comment=WarnIfNotOne>;
+    
     local uint i;
     for (i = 0; i < dimension; i++) {
-        TRNSubSection1 subsection <name="Subsection 1">;
+        TRNChunk chunk <name="Chunk">;
     }
 };
 
@@ -57,21 +77,21 @@ struct TRNHeightMap
     }
 };
 
-struct TRNSection2
+struct TRNColors
 {
     local uint i;
     for (i = 0; i < vertex_line * vertex_line; i++) {
-        short unknown_value <bgcolor=0x0000FF, name="Unknown Value (Water level?)">;
+        short color <bgcolor=0x00FF00, name="Vertex Color", comment=ConvertColor>;
     }
 };
 
-struct TRNSection3
+struct TRNNormals
 {
     local uint i;
     for (i = 0; i < vertex_line * vertex_line; i++) {
-        byte unknown_value_1 <bgcolor=0x0000FF, name="Unknown Value 1">;
-        byte unknown_value_2 <bgcolor=0x0000FF, name="Unknown Value 2">;
-        byte unknown_value_3 <bgcolor=0x0000FF, name="Unknown Value 3">;
+        byte normal_x <bgcolor=0x00FF00, name="Normal X", comment=Normalize>;
+        byte normal_y <bgcolor=0x00FF00, name="Normal Y", comment=Normalize>;
+        byte normal_z <bgcolor=0x00FF00, name="Normal Z", comment=Normalize>;
     }
 };
 
@@ -102,10 +122,10 @@ struct TRNStrings
 struct TRNFile
 {
     TRNHeader header <name="Header">;
-    TRNSection1 section_1 <name="Unknown Section 1">;
+    TRNChunks chunks <name="Tile Chunks">;
     TRNHeightMap height_map <name="Height Map">;
-    TRNSection2 section_2 <name="Unknown Section 2">;
-    TRNSection3 section_3 <name="Unknown Section 3">;
+    TRNColors colors <name="Vertex Colors">;
+    TRNNormals normals <name="Vertex Normals">;
     byte padding <bgcolor=0xFFBB00, name="Padding">;
     TRNStrings strings <name="Strings">;
-} file <name="TRN">;
+} file <name="TRN v10">;

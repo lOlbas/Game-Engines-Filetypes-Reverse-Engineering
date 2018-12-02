@@ -1,12 +1,14 @@
 struct BDAETexture
 {
     uint64 map_name <bgcolor=0x00FF00, name="Tetxure Map", comment=StringAtOffset>;
-    BDAEUsedString used_string(map_name) <name="Used String">;
     uint64 map_name_friendly <bgcolor=0x00FF00, name="Tetxure Map Friendly", comment=StringAtOffset>;
-    BDAEUsedString used_string(map_name_friendly) <name="Used String">;
     uint64 texture_file <bgcolor=0x00FF00, name="Texture Path", comment=StringAtOffset>;
-    BDAEUsedString used_string(texture_file) <name="Used String">;
     uint64 zero_padding <bgcolor=0x0088FF, name="Reserved">;
+
+    /* Strings Used */
+    BDAEUsedString used_string(map_name) <name="Used String">;
+    BDAEUsedString used_string(map_name_friendly) <name="Used String">;
+    BDAEUsedString used_string(texture_file) <name="Used String">;
 };
 
 struct BDAETextures
