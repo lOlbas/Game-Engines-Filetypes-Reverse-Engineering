@@ -12,6 +12,7 @@
 //------------------------------------------------
 
 local uint FORMAT_VERSION;
+local char AITM_HEADER[4] = "AITM";
 
 enum ENTITY_TYPE {
     ENTITY				,//= 0x01 << 0,
@@ -85,7 +86,7 @@ string WarnIfNotOne(uint value) { if (value != 1) Printf("Value is not ONE at 0x
 struct ITMHeader
 {
     uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
-    Assert(signature == "AITM", "Wrong file format!");
+    Assert(signature == AITM_HEADER, "Wrong file format!");
     uint format_version <bgcolor=0x00FF00, name="Format Version">;
     FORMAT_VERSION = format_version;
     int grid_x <bgcolor=0x00FF00, name="Grid X">;

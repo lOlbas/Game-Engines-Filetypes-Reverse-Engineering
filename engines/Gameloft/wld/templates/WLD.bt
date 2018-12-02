@@ -1,0 +1,47 @@
+//------------------------------------------------
+//--- 010 Editor v7.0 Binary Template
+//
+//      File: WLD.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: WLD Format
+//  Category: 
+// File Mask: *.wld
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+local uint FORMAT_VERSION;
+local char AWLD_HEADER[4] = "AWLD";
+
+struct OffsetInfo
+{
+    uint count <bgcolor=0x00FF00, name="Count">;
+    uint relative_offset <format=hex, bgcolor=0x00FF00, name="Data Offset">;
+    local uint offset = FTell() - sizeof(uint) + relative_offset;
+};
+
+struct TerrainDescription
+{
+    int chunks_in_tile_shift <bgcolor=0x00FF00, comment="How many chunk rows each tile hold = 1 << chunks_in_tile_shift">;
+    int units_in_chunk_shift <bgcolor=0x00FF00, comment="How many grid rows each Chunk hold = 1 << units_in_chunk_shift">;
+    int unit_size <bgcolor=0x00FF00, comment="Distance between grid vertices, meters">;
+};
+
+struct WLDHeader
+{
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    Assert(signature == AWLD_HEADER, "Wrong file format!");
+    uint format_version <bgcolor=0x00FF00, name="Format Version">;
+    FORMAT_VERSION = format_version;
+    OffsetInfo name <bgcolor=0x00FF00, name="Name">;
+    OffsetInfo terrain_config <bgcolor=0x00FF00, name="Terrain Config">;
+    OffsetInfo terrain_list <bgcolor=0x00FF00, name="Terrain List">;
+};
+
+struct WLDFile
+{
+    WLDHeader header <name="Header">;
+    uchar world_name[header.name.count] <bgcolor=0x00FF00, name="World Name">;
+    TerrainDescription terrain_desc <name="Terrain Description">;
+} file <name="WLD">;

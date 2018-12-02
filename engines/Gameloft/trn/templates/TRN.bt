@@ -4,15 +4,15 @@
 //      File: TRN.bt
 //   Authors: lOlbas
 //   Version: 1.0
-//   Purpose: TRN Format v10
+//   Purpose: TRN Format v9
 //  Category: 
 // File Mask: *.trn
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
 
-local uint FORMAT_VERSION = 10;
-
+local uint FORMAT_VERSION;
+local char ATIL_HEADER[4] = "ATIL";
 local uint dimension = 64;
 local uint vertex_line = dimension + 1;
 
@@ -35,35 +35,43 @@ string Normalize(byte normal) {
 struct TRNHeader
 {
     uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
-    uint version <bgcolor=0x00FF00, name="Format Version">;
-    Assert(version == FORMAT_VERSION, "Wrong format version!");
+    Assert(signature == ATIL_HEADER, "Wrong file format!");
+    uint format_version <bgcolor=0x00FF00, name="Format Version">;
+    FORMAT_VERSION = format_version;
     int grid_x <bgcolor=0x00FF00, name="Grid X">;
     int grid_y <bgcolor=0x00FF00, name="Grid Y">;
-    uint64 unknown <bgcolor=0x0000FF, name="Unknown", comment=WarnIfNotOne>;
+    uint flag <bgcolor=0x00FFFF, name="Flag">;
+    int water_tex_id <bgcolor=0x00FFFF>;
 };
 
-struct TRNChunk
+struct TRNChunkV9
 {
-    ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0055CC, name="Unknown Value">;
-    hfloat unknown_value <bgcolor=0x0055FF, name="Unknown Value">;
-    short unknown_value <bgcolor=0x0099FF, name="Unknown Value">;
-    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    hfloat unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    short unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    ushort unknown_value <bgcolor=0x0000FF, name="Unknown Value">;
-    hfloat unknown_value <bgcolor=0x00FFFF, name="Water Level">;
+    uint flag <bgcolor=0xFFBB00, name="Flag">;
+    short water_level <bgcolor=0x00FF00, name="Water Level">;
+    short texture_index[3] <bgcolor=0x00FF00, name="Texture Index">;
+};
+
+struct TRNChunkV10
+{
+    TRNChunkV9 chunk <name="Chunk">;
+    short unknown_index_1 <bgcolor=0x0000FF, name="Unknown">;
+    short unknown_index_2 <bgcolor=0x0000FF, name="Unknown">;
+    short unknown_1 <bgcolor=0x0000FF, name="Unknown">;
+    short unknown_2 <bgcolor=0x0000FF, name="Unknown">;
+    short unknown_3 <bgcolor=0x0000FF, name="Unknown">;
+    hfloat unknown_4 <bgcolor=0x0000FF, name="Unknown">;
 };
 
 struct TRNChunks
 {
-    
     local uint i;
-    for (i = 0; i < dimension; i++) {
-        TRNChunk chunk <name="Chunk">;
+    local uint chunkCountInTile = 64;
+    for (i = 0; i < chunkCountInTile; i++) {
+        switch (FORMAT_VERSION) {
+            case 9: TRNChunkV9 chunk <name="Chunk">; break;
+            case 10: TRNChunkV10 chunk <name="Chunk">; break;
+            default: Assert(false, "Unsuported format version!");
+        }
     }
 };
 
@@ -128,4 +136,4 @@ struct TRNFile
     TRNNormals normals <name="Vertex Normals">;
     byte padding <bgcolor=0xFFBB00, name="Padding">;
     TRNStrings strings <name="Strings">;
-} file <name="TRN v10">;
+} file <name="TRN">;

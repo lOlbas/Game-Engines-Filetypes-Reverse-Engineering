@@ -1,0 +1,5 @@
+struct BoundingBox
+{
+    Vector3 corner_1;
+    Vector3 corner_2;
+};

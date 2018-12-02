@@ -1,0 +1,7 @@
+struct Quaternion
+{
+    float X <bgcolor=0x00FF00, name="X">;
+    float Y <bgcolor=0x00FF00, name="Y">;
+    float Z <bgcolor=0x00FF00, name="Z">;
+    float W <bgcolor=0x00FF00, name="W">;
+};
