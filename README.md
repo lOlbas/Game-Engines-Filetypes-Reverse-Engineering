@@ -65,8 +65,8 @@ Status legend:
     <td></td>
   </tr>
   <tr>
-  <td><img src="https://placehold.it/15/FFBB00/?text=+" /> <a href="engines/Gameloft/itm/">.itm</a></td>
-    <td>Contains data about different .bdae models placed on a terrain chunk. Implicitly bound with .trn by game world position.</td>
+  <td><img src="https://placehold.it/15/00FF00/?text=+" /> <a href="engines/Gameloft/itm/">.itm</a></td>
+    <td>Contains data about different .bdae models placed on a terrain chunk. Implicitly bound with .trn by game grid position.</td>
   </tr>
   <tr>
     <td><img src="https://placehold.it/15/FF0000/?text=+" /> .msk</td>
@@ -93,12 +93,12 @@ Status legend:
     <td></td>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <a href="engines/Gameloft/trn/">.trn</a></td>
-    <td>Represents a terrain chunk of 64x64 size. Known info: heightmaps.</td>
+    <td><img src="https://placehold.it/15/00FF00/?text=+" /> <a href="engines/Gameloft/trn/">.trn</a></td>
+    <td>Represents a world terrain tile.</td>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/FF0000/?text=+" /> .wld</td>
-    <td></td>
+    <td><img src="https://placehold.it/15/00FF00/?text=+" /> .wld</td>
+    <td>Contains world description. Not much usefull info except world name.</td>
   </tr>
   <tr>
     <td>...</td>
@@ -128,7 +128,7 @@ Keep in mind, that [010 Editor](https://www.sweetscape.com/010editor/) colors ar
 
 A well-structured storage is easy to search to maintain! That's why a certain logic should be used. In our case, we can have multiple game engines use same extension but those files be of different types.
 
-A top-level directory `engines` is used to contain game engines folders. Navigating to certain engine will show a list of folders with extensions supplied as folder names. In case a filetype can be of multiple versions, every version (prefixed with `v`) is contained as a separate folder. Inside extension folder (or its version) there must be `scripts` and `templates` folders.
+A top-level directory `engines` is used to contain game engines folders. Navigating to certain engine will show a list of folders with extensions supplied as folder names. In case a filetype can be of multiple versions, every version (prefixed with `v`) is contained as a separate folder unless you can generalize specification in one file for multiple versions. Inside extension folder (or its version) there should be `scripts` and `templates` folders.
 
 
 Example structure:
@@ -136,19 +136,19 @@ Example structure:
 ```
 engines/
 ├── Gameloft/
-│   └── bdae/
-│       ├── v0.0.0.779/
-│       │   ├── samples
-│       │   │   └── elf_low_h.bdae
-│       │   ├── scripts
-│       │   │   └── bdae_import.cs
-│       │   └── templates
-│       │   │   └── BDAE.bt
-│       └── v0.0.0.946/
-│           ├── samples
-│           ├── scripts
-│           └── templates
-│               └── BDAE.bt
+│   ├── bdae/
+│   │   ├── v0.0.0.779/
+│   │   │   ├── scripts
+│   │   │   │   └── bdae_import.cs
+│   │   │   └── templates
+│   │   │   │   └── BDAE.bt
+│   │   └── v0.0.0.946/
+│   │       ├── scripts
+│   │       └── templates
+│   │           └── BDAE.bt
+│   └── trn/
+│       └── templates/
+│           └── TRN.bt
 ├── Frostbite/
 └── General/
 ```
