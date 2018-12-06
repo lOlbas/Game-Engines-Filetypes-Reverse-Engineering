@@ -1,0 +1,6 @@
+struct ColladaNode
+{
+    AlignedString node <name="Node File">;
+    int model_loop <bgcolor=0x00FF00, name="Model Loop", comment="Boolean">;
+    CKeyData alpha_anim_ctrl('i') <name="AlphaAnimCtrl">;
+};

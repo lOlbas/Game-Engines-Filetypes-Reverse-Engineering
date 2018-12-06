@@ -1,0 +1,34 @@
+struct Vector2
+{
+    float X <name="X">;
+    float Y <name="Y">;
+};
+
+struct Vector3
+{
+    float X <name="X">;
+    float Y <name="Y">;
+    float Z <name="Z">;
+};
+
+struct AlignedString
+{
+    int length <bgcolor=0x00FF00, name="Filename Length">;
+    if (length > 0)
+        char node_file[length] <bgcolor=0x00FF00, name="File Name">;
+};
+
+struct RGB
+{
+    int red <name="Red">;
+    int green <name="Green">;
+    int blue <name="Blue">;
+};
+
+struct RGBA
+{
+    int red <name="Red">;
+    int green <name="Green">;
+    int blue <name="Blue">;
+    int alpha <name="Alpha">;
+};

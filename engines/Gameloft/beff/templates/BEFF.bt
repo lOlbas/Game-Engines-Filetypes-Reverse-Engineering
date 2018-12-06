@@ -1,0 +1,70 @@
+//------------------------------------------------
+//--- 010 Editor v7.0 Binary Template
+//
+//      File: BEFF.bt
+//   Authors: lOlbas
+//   Version: 1.0
+//   Purpose: BEFF Format
+//  Category: 
+// File Mask: *.beff
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "Structs.bt"
+#include "CKeyData.bt"
+#include "ColladaRoot.bt"
+#include "Emitter.bt"
+
+local uint FORMAT_VERSION;
+local char BEFF_HEADER[4] = "beff";
+
+enum NODE_TYPE {
+	NODE_TYPE_EMITTER,
+	NODE_TYPE_COLLADA_ROOT,
+	NODE_TYPE_COLLADA_NODE,
+
+	NODE_TYPE_COUNT
+};
+
+string NodeType(int type) {
+    switch (type) {
+        case NODE_TYPE_EMITTER: return "Emitter";
+        case NODE_TYPE_COLLADA_ROOT: return "Collada Root";
+        case NODE_TYPE_COLLADA_NODE: return "Collada Node";
+        
+        case NODE_TYPE_COUNT: return "Count";
+        
+        default: return "Unknown node type";
+    }
+};
+
+struct BEFFHeader
+{
+    uchar signature[4] <bgcolor=0x00FF00, name="Signature">;
+    Assert(signature == BEFF_HEADER, "Wrong file format!");
+    uint format_version <bgcolor=0x00FF00, name="Format Version">;
+    FORMAT_VERSION = format_version;
+    int delay_time_min <bgcolor=0x00FF00, name="Delay Time Min">;
+    int delay_time_max <bgcolor=0x00FF00, name="Delay Time Max">;
+    int nodes_count <bgcolor=0x00FF00, name="Nodes Count">;
+};
+
+struct BEFFNodes
+{
+    local uint i;
+    for (i = 0; i < header.nodes_count; i++) {
+        int type <bgcolor=0x00FF00, name="Node Type", comment=NodeType>;
+        switch (type) {
+            case NODE_TYPE_EMITTER: Emitter node <name="Emitter">; break;
+            case NODE_TYPE_COLLADA_ROOT: ColladaNode node <name="Collada Node">; break;
+            default: Warning("Unsupported node type!");
+        }
+    }
+};
+
+struct BEFFFile
+{
+    BEFFHeader header <name="Header">;
+    BEFFNodes nodes <name="Nodes">;
+} file <name="BEFF">;

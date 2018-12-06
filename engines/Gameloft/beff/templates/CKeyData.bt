@@ -1,0 +1,32 @@
+struct KeyDataInt
+{
+    int key_frame <bgcolor=0x00FF00, name="Key Frame">;
+    int data <bgcolor=0xFFBB00, name="Int Data">;
+};
+
+struct KeyDataFloat
+{
+    int key_frame <bgcolor=0x00FF00, name="Key Frame">;
+    float data <bgcolor=0xFFBB00, name="Float Data">;
+};
+
+struct KeyDataVector3
+{
+    int key_frame <bgcolor=0x00FF00, name="Key Frame">;
+    Vector3 data <bgcolor=0xFFBB00, name="Vector3 Data">;
+};
+
+struct CKeyData (char type)
+{
+    uint key_count <bgcolor=0x00FF00, name="Key Count">;
+    int is_loop <bgcolor=0x00FF00, name="Is Loop", comment="Boolean">;
+    
+    local uint i;
+    for (i = 0; i < key_count; i++) {
+        switch (type) {
+            case 'i': KeyDataInt key_data <name="Key Data">; break;
+            case 'f': KeyDataFloat key_data <name="Key Data">; break;
+            case '3': KeyDataVector3 key_data <name="Key Data">; break;
+        }
+    }
+};

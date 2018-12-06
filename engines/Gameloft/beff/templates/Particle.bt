@@ -1,0 +1,79 @@
+enum PAR_TYPE {
+    PAR_TYPE_BILLBOARD,
+    PAR_TYPE_FREE,
+    PAR_TYPE_DIRECTIONAL_FREE,
+    PAR_TYPE_DIRECTIONAL,
+    PAR_TYPE_LINESTRIPE_FREE,
+    PAR_TYPE_LINESTRIPE_BILL,
+    
+    PAR_TYPE_COUNT
+};
+
+enum BLEND_TYPE {
+    BLEND_TYPE_ALPHA,
+    BLEND_TYPE_ADDITION,
+    
+    BLEND_TYPE_COUNT
+};
+
+string ParticleType(int type) {
+    switch (type) {
+        case PAR_TYPE_BILLBOARD: return "Billboard";
+        case PAR_TYPE_FREE: return "Free";
+        case PAR_TYPE_DIRECTIONAL_FREE: return "Directional Free";
+        case PAR_TYPE_DIRECTIONAL: return "Directional";
+        case PAR_TYPE_LINESTRIPE_FREE: return "Linestripe Free";
+        case PAR_TYPE_LINESTRIPE_BILL: return "Linestripe Bill";
+        
+        case PAR_TYPE_COUNT: return "Count";
+        
+        default: return "Unknown node type";
+    }
+};
+
+struct ParticleData
+{
+    int type <bgcolor=0x00FF00, name="Particle Type", comment=ParticleType>;
+    int follow_flag <bgcolor=0x00FF00>;
+    int life_time <bgcolor=0x00FF00>;
+    int life_time_random <bgcolor=0x00FF00>;
+    int size_random <bgcolor=0x00FF00>;
+    int is_keep_xy_scale <bgcolor=0x00FF00>;
+    float base_angle_x <bgcolor=0x00FF00>;
+    int base_angle_x_random <bgcolor=0x00FF00>;
+    float base_angle_y <bgcolor=0x00FF00>;
+    int base_angle_y_random <bgcolor=0x00FF00>;
+    float base_angle_z <bgcolor=0x00FF00>;
+    int base_angle_z_random <bgcolor=0x00FF00>;
+    int rotate_x_random <bgcolor=0x00FF00>;
+    int rotate_y_random <bgcolor=0x00FF00>;
+    int rotate_z_random <bgcolor=0x00FF00>;
+    int scale_random <bgcolor=0x00FF00>;
+    int mrtl_type <bgcolor=0x00FF00>;
+    int pivot_x <bgcolor=0x00FF00>;
+    int pivot_y <bgcolor=0x00FF00>;
+    int uv_rot <bgcolor=0x00FF00>;
+    short flip_h <bgcolor=0x00FF00>;
+    short flip_v <bgcolor=0x00FF00>;
+};
+
+struct Particle
+{
+    ParticleData data <name="Particle Data">;
+    AlignedString texture <name="Texture">;
+    
+    CKeyData color_r('i') <name="Color.Red">;
+    CKeyData color_g('i') <name="Color.Green">;
+    CKeyData color_b('i') <name="Color.Blue">;
+    CKeyData color_a('i') <name="Color.Alpha">;
+    
+    CKeyData base_size_x('f') <name="Base Size X">;
+    CKeyData base_size_y('f') <name="Base Size Y">;
+    
+    CKeyData rotation_x('f') <name="Rotation X">;
+    CKeyData rotation_y('f') <name="Rotation Y">;
+    CKeyData rotation_z('f') <name="Rotation Z">;
+    
+    CKeyData scale_x('f') <name="Scale X">;
+    CKeyData scale_y('f') <name="Scale Y">;
+};

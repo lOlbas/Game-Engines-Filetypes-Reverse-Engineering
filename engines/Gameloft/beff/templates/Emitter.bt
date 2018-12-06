@@ -1,0 +1,75 @@
+#include "Particle.bt"
+#include "Affectors.bt"
+
+enum EMTT_TYPE {
+    EMTT_POINT,
+    EMTT_SPHERE,
+    EMTT_DISC,
+    EMTT_CUBE,
+    
+    EMTT_COUNT
+};
+
+string EmitterType(int type) {
+    switch (type) {
+        case EMTT_POINT: return "Point";
+        case EMTT_SPHERE: return "Sphere";
+        case EMTT_DISC: return "Disc";
+        case EMTT_CUBE: return "Cube";
+        
+        case EMTT_COUNT: return "Count";
+        
+        default: return "Unknown node type";
+    }
+};
+
+struct EmitterData
+{
+    int type <bgcolor=0x00FF00, name="Emitter Type", comment=EmitterType>;
+    ushort music <bgcolor=0x00FF00, name="Music">;
+    ushort is_billboard <bgcolor=0x00FF00, name="Is Billboard">;
+    int follow_flag <bgcolor=0x00FF00>;
+    int emit_volume_random <bgcolor=0x00FF00>;
+    int emit_time <bgcolor=0x00FF00>;
+    int emit_start_time <bgcolor=0x00FF00>;
+    int interval <bgcolor=0x00FF00>;
+    int interval_random <bgcolor=0x00FF00>;
+    int is_particle_die_with_emitter <bgcolor=0x00FF00>;
+    int is_toward_target <bgcolor=0x00FF00>;
+    int speed_all_random <bgcolor=0x00FF00>;
+    int speed_spe_random <bgcolor=0x00FF00>;
+};
+
+struct Emitter;
+
+struct Emitter
+{
+    AlignedString parent_node <name="Parent Node">;
+    int sub_emitters <bgcolor=0x00FF00, name="Sub Emitters">;
+    EmitterData data <name="Emitter Data">;
+    
+    // Key Data
+    CKeyData outer_x('f') <name="Outer X">;
+    CKeyData outer_y('f') <name="Outer Y">;
+    CKeyData outer_z('f') <name="Outer Z">;
+    CKeyData inner('i') <name="Inner">;
+    CKeyData rotate_x('f') <name="Rotate X", comment="Radian">;
+    CKeyData rotate_y('f') <name="Rotate Y">;
+    CKeyData rotate_z('f') <name="Rotate Z">;
+    CKeyData translate_x('f') <name="Translate X">;
+    CKeyData translate_y('f') <name="Translate Y">;
+    CKeyData translate_z('f') <name="Translate Z">;
+    CKeyData emit_volumn('f') <name="Emit Volumn">;
+    CKeyData speed_all('f') <name="Speed All">;
+    CKeyData speed_spe('f') <name="Speed Spe">;
+    CKeyData speed_spe_angle('f') <name="Speed Spe Angle">;
+    CKeyData spe_dir('3') <name="Spe Direction">;
+    
+    Particle particle <name="Particle">;
+    Affectors affectors <name="Affectors">;
+    
+    local uint i;
+    for (i = 0; i < sub_emitters; i++) {
+        Emitter sub_emitter <name="Sub Emitter">;
+    }
+};

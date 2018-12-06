@@ -1,0 +1,69 @@
+enum AFFT_TYPE {
+    AFFT_GRAVITY,
+    AFFT_ACCELERATE,
+    AFFT_RANDOM,
+    AFFT_VORTEX,
+    
+    AFFECTOR_COUNT
+};
+
+string AffectorType (int type) {
+    switch (type) {
+        case AFFT_GRAVITY: return "Gravity";
+        case AFFT_ACCELERATE: return "Accelerate";
+        case AFFT_RANDOM: return "Random";
+        case AFFT_VORTEX: return "Vortex";
+        
+        case AFFECTOR_COUNT: return "Count";
+        
+        default: return "Unknown node type";
+    }
+};
+
+struct AffectorGravity
+{
+    CKeyData strength('f') <name="Strength">;
+    CKeyData direction('3') <name="Direction">;
+};
+
+struct AffectorAccelerate
+{
+    CKeyData strength('f') <name="Strength">;
+};
+
+struct AffectorRandom
+{
+    CKeyData strength_x('f') <name="Strength X">;
+    CKeyData strength_y('f') <name="Strength Y">;
+    CKeyData strength_z('f') <name="Strength Z">;
+    CKeyData Interval('f') <name="Interval">;
+};
+
+struct AffectorVortex
+{
+    CKeyData strength('f') <name="Strength">;
+    CKeyData diretcion('3') <name="Direction">;
+    int affect_type <bgcolor=0x00FF00, name="Affect Type", comment="0 - affect position, 1 - affect speed">;
+};
+
+struct Affector
+{
+    int id <bgcolor=0x00FF00, name="ID">;
+    int type <bgcolor=0x00FF00, name="Affector Type", comment=AffectorType>;
+    
+    switch (type) {
+        case AFFT_GRAVITY: AffectorGravity gravity <name="Gravity">; break;
+        case AFFT_ACCELERATE: AffectorAccelerate accelerate <name="Accelerate">; break;
+        case AFFT_RANDOM: AffectorRandom random <name="Random">; break;
+        case AFFT_VORTEX: AffectorVortex vortex <name="Vortex">; break;
+    }
+};
+
+struct Affectors
+{
+    int count <bgcolor=0x00FF00, name="Affectors Count">;
+    local int i;
+    for (i = 0; i < count; i++) {
+        Affector affector <name="Affector">;
+    }
+};
