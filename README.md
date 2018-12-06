@@ -49,7 +49,7 @@ Status legend:
   <td>3D model including mesh, materials, textures, nodes, bones, SFX, animations.<br></td>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/00FF00/?text=+" /> .beff</td>
+    <td><img src="https://placehold.it/15/00FF00/?text=+" /> <a href="engines/Gameloft/beff">.beff</a></td>
     <td>Visual effects that can be attached to .bdae nodes.</td>
   </tr>
   <tr>
