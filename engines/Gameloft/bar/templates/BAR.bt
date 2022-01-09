@@ -1,0 +1,124 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: BAR.bt
+//   Authors: TheAuctioneer9836
+//   Version: 1.0
+//   Purpose: Parse packaged strings files from some Gameloft games.
+//  Category: 
+// File Mask: *.bar
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+//------------------------------------------------
+// Variables
+//------------------------------------------------
+
+local ushort packs_count = 0;
+
+local int seek_status;
+
+//------------------------------------------------
+// Structures and functions
+//------------------------------------------------
+
+struct PackOffsets
+{
+    ushort count <bgcolor=0x00FF00, name="Count">;
+    Assert(count >= 2, "Count of pack offsets must be not less than 2");
+
+    packs_count = count - 1;
+
+    uint offset[count] <bgcolor=0x00FF00, format=hex, name="Offsets">;
+};
+
+typedef struct
+{
+    local uint real_length = ReadStringLength(FTell());
+    local uint aligned_length = (real_length + 3) & ~3; // 4-byte alignment with respect to pack strings block start
+    byte bytes[aligned_length] <bgcolor=0x00FF00, format=hex, name="String Bytes">;
+} String <read=ReadPackString>;
+
+// UTF-8 encoding needs to be selected in interface for correct representation of non-ASCII strings
+string ReadPackString(String &str)
+{
+    return str.bytes;
+}
+
+struct PackStrings (struct StringPack &pack, int64 start_pos, int64 size)
+{
+    local uint count = pack.strings_count;
+
+    local uint index;
+    for (index = 0; index < count; index++)
+    {
+        Assert(pack.string_offsets[index] < size, "String offset must be less than pack strings block size");
+
+        seek_status = FSeek(start_pos + pack.string_offsets[index]);
+        Assert(seek_status == 0, "Failed setting current position to string start address");
+
+        String pack_string <name="String">;
+    } 
+};
+
+string NamePackStrings(PackStrings &strings)
+{
+    string name;
+    SPrintf(name, "Strings[%u]", strings.count);
+    return name;
+}
+
+struct StringPack (ushort index)
+{
+    local int64 pack_size = pack_offsets.offset[index + 1] - pack_offsets.offset[index];
+    Assert(pack_size > 0, "String pack size must be more than 0 bytes");
+
+    local int64 pack_start_pos = FTell();
+
+    uint strings_count <bgcolor=0x00FF00, name="Strings Count">;
+    uint string_offsets[strings_count] <bgcolor=0x00FF00, format=hex, name="String Offsets">;
+
+    local int64 strings_start_pos = FTell();
+
+    local int64 strings_block_size = pack_size - (strings_start_pos - pack_start_pos);
+    Assert(strings_block_size > 0, "Pack string block size must be more than 0 bytes");
+
+    PackStrings strings(this, strings_start_pos, strings_block_size) <name=NamePackStrings>;
+};
+
+struct StringPacks
+{
+    local int64 start_pos = FTell();
+    local int64 remaining_size = FileSize() - start_pos;
+
+    local ushort index;
+    for (index = 0; index < packs_count; index++)
+    {
+        Assert(pack_offsets.offset[index] < remaining_size, "String pack offset must be less than remaining file size");
+
+        seek_status = FSeek(start_pos + pack_offsets.offset[index]);
+        Assert(seek_status == 0, "Failed setting current position to pack start address");
+
+        StringPack pack(index) <name="String Pack">;
+    }
+};
+
+string NameStringPacks(StringPacks &packs)
+{
+    string name;
+    SPrintf(name, "String Packs[%hu]", packs_count);
+    return name;
+}
+
+//------------------------------------------------
+// Parsing file
+//------------------------------------------------
+
+if (GetFileCharSet() != CHARSET_UTF8)
+    Warning("Currently selected charset is not UTF-8, non-ASCII strings may be displayed incorrectly");
+
+LittleEndian();
+
+PackOffsets pack_offsets <name="Pack Offsets">;
+StringPacks string_packs <name=NameStringPacks>;
