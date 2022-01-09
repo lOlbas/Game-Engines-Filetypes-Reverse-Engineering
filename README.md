@@ -41,8 +41,8 @@ Status legend:
     <th>Description</th>
   </tr>
   <tr>
-    <td><img src="https://placehold.it/15/FF0000/?text=+" /> .bar</td>
-    <td></td>
+    <td><img src="https://placehold.it/15/00FF00/?text=+" /> <a href="engines/Gameloft/bar/">.bar</a></td>
+    <td>Packaged strings of certain language.</td>
   </tr>
   <tr>
   <td><img src="https://placehold.it/15/FFFF00/?text=+" /> <span class=""> <a href="engines/Gameloft/bdae/">.bdae</a></span></td>
